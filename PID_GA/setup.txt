@@ -1,0 +1,7 @@
+#sudo apt-get install python-numpy
+sudo apt-get install cython
+#sudo apt-get install python-scipy
+sudo apt-get build-dep python-matplotlib
+sudo apt-get install libatlas-base-dev gfortran	sudo pip install slycot
+sudo easy_install -U distribute
+sudo pip install control
