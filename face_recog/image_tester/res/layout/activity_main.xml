@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView
+    	xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+           
+<LinearLayout
+    
+    android:id="@+id/layoutview"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" 
+    android:gravity="top">
+
+
+
+        <Button
+            android:id="@+id/button1"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Start Conversion" >
+        </Button>
+
+        <TextView
+            android:id="@+id/status"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Conversion Status: Ready" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/detected"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Files Detected: 0" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/success"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Files Successfully Converted: 0" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/failed"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Files Skipped (Detection Failed): 0" >
+        </TextView>
+        
+                
+        <Button
+            android:id="@+id/button5"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Generate WEBP Images" >
+        </Button>
+
+        <TextView
+            android:id="@+id/webp_status"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Compression Status: Ready" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/webp_detected"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Files Detected: 0" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/webp_success"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Files Successfully Converted: 0" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/webp_failed"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Files Skipped (Detection Failed): 0" >
+        </TextView>
+        
+        
+        
+        
+        
+        
+        
+        
+
+        <Button
+            android:id="@+id/button2"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Start OpenCV LBPH Test" >
+        </Button>
+
+        <TextView
+            android:id="@+id/ltest_status"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Test Status: Ready" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/ltested_images"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Images Tested: 0" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/lcorrect_match"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Correct Matches (33): 0" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/lfalse_positives"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="False Positives(0): 0" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/lfalse_negatives"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="False Negatives(0): 0" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/lcorrect_unknown"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Correct Unknowns (528): 0" >
+        </TextView>
+
+        <Button
+            android:id="@+id/button3"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Start ORB Features Test" >
+        </Button>
+
+        <TextView
+            android:id="@+id/otest_status"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Test Status: Ready" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/otested_images"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Images Tested: 0" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/ocorrect_match"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Correct Matches (33): 0" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/ofalse_positives"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="False Positives(0): 0" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/ofalse_negatives"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="False Negatives(0): 0" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/ocorrect_unknown"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Correct Unknowns (528): 0" >
+        </TextView>
+
+        <Button
+            android:id="@+id/button4"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Start CCN Template Matching Test" >
+        </Button>
+
+        <TextView
+            android:id="@+id/ctest_status"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Test Status: Ready" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/ctested_images"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Images Tested: 0" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/ccorrect_match"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Correct Matches (33): 0" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/cfalse_positives"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="False Positives(0): 0" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/cfalse_negatives"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="False Negatives(0): 0" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/ccorrect_unknown"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Correct Unknowns (528): 0" >
+        </TextView>
+
+                
+</LinearLayout>
+</ScrollView>
