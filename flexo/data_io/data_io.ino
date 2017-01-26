@@ -1,5 +1,34 @@
+#include <SPI.h>
+#include <SD.h>
+
+//enum reference: https://forum.arduino.cc/index.php?topic=109584.0
+//SD card reference: https://www.arduino.cc/en/reference/SD
+
+const int SD_PIN = 20; //corresponds to the CS pin
 const int BUF_SIZE = 10;
 const int DELAY = 100;
+
+//button toggle variables
+bool recording = false;
+int buttonState;   
+int previousState = LOW;    
+long time = 0;         
+long debounce = 200;
+
+String data1 = "";
+String data2 = "";
+String data3 = "";
+String data4 = "";
+String data5 = "";
+String data6 = "";
+String data7 = "";
+String data8 = "";
+String data9 = "";
+String data10 = "";
+String data11 = "";
+String data12 = "";
+String data13 = "";
+String data14 = "";
 
 // INPUT BUFFERS
 int buf_1 [BUF_SIZE];     //left hand - pressure sensor 1
@@ -24,6 +53,11 @@ int buf_avg[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
 
 void setup() {
   Serial.begin(9600);
+  initIO();
+  initSD();
+}
+
+void initIO(){
   pinMode(0, INPUT);
   pinMode(1, INPUT);
   pinMode(2, INPUT);
@@ -38,7 +72,18 @@ void setup() {
   pinMode(11, INPUT);
   pinMode(12, INPUT);
   pinMode(13, INPUT);  
-  pinMode(A14, OUTPUT);
+    
+  pinMode(A14, OUTPUT); //FOR ANALOG OUTPUT (PLACEHOLDER)
+  pinMode(14, INPUT); //BUTTON TOGGLE FOR RECORDING
+}
+
+void initSD(){
+  Serial.print("Attempting to initialize SD card...");  
+  if (!SD.begin(SD_PIN)) {
+    Serial.println("Initialization failed. SD card not detected.");    
+    return;
+  }
+  Serial.println("SD card has been successfully initialized.");
 }
 
 void updateBuffer(){
@@ -139,19 +184,113 @@ void printPlot(){
   Serial.println(val_14*500);  
 }
 
+void toggleButtonState(){
+  buttonState = digitalRead(14);  
+  if (buttonState == HIGH && previousState == LOW && millis() - time > debounce) {
+    if (recording == false){
+      recording = true;
+    }     
+    else{
+      recording = false;
+    }
+    time = millis();    
+  }  
+  previousState = buttonState;
+}
+
+void recordData(){
+  //data collection begins
+  if (recording){
+      data1 += buf_avg[0] + ", ";
+      data2 += buf_avg[1] + ", ";
+      data3 += buf_avg[2] + ", ";
+      data4 += buf_avg[3] + ", ";
+      data5 += buf_avg[4] + ", ";
+      data6 += buf_avg[5] + ", ";
+      data7 += buf_avg[6] + ", ";
+      data8 += buf_avg[7] + ", ";
+      data9 += buf_avg[8] + ", ";
+      data10 += buf_avg[9] + ", ";
+      data11 += buf_avg[10] + ", ";
+      data12 += buf_avg[11] + ", ";
+      data13 += val_13 + ", ";
+      data14 += val_14 + ", ";
+  }
+  //data collection stops
+  else if (!recording && data1.length() > 0){
+    recordToFile();
+  }  
+}
+
+void recordToFile(){
+  int count = 0;
+  File dataFile;    
+
+  //generate a new file name
+  while(true){
+    if (SD.exists("datalog_" + count)){
+      count++;      
+    }
+    else{
+      dataFile = SD.open("datalog_" + count, FILE_WRITE);
+      break;
+    }
+  }    
+  
+  if (dataFile) {
+    dataFile.println(data1);
+    dataFile.println(data2);
+    dataFile.println(data3);
+    dataFile.println(data4);
+    dataFile.println(data5);
+    dataFile.println(data6);
+    dataFile.println(data7);
+    dataFile.println(data8);
+    dataFile.println(data9);
+    dataFile.println(data10);
+    dataFile.println(data11);
+    dataFile.println(data12);
+    dataFile.println(data13);
+    dataFile.println(data14);
+    dataFile.close();
+          
+    Serial.println("file write complete.");
+
+    data1 = "";
+    data2 = "";
+    data3 = "";
+    data4 = "";
+    data5 = "";
+    data6 = "";
+    data7 = "";
+    data8 = "";
+    data9 = "";
+    data10 = "";
+    data11 = "";
+    data12 = "";
+    data13 = "";
+    data14 = "";
+  }
+  // if the file isn't open, pop up an error:
+  else {
+    Serial.println("error opening file");
+  }    
+}
+
+
 void loop() {
 
   updateBuffer();
   calculateAvg(); 
+  toggleButtonState();
+  recordData();  
   printPlot();
   resetBuf(); 
 
-  if (val_13 || val_14){
-    analogWrite(A14, 255);
-  }
+//  if (val_13 || val_14){
+//    analogWrite(A14, 255);
+//  }
 
   delay(DELAY);
 }
-
-//future reference: https://www.arduino.cc/en/reference/SD
 
