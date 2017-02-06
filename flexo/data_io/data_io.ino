@@ -201,20 +201,20 @@ void toggleButtonState(){
 void recordData(){
   //data collection begins
   if (recording){
-      data1 += buf_avg[0] + ", ";
-      data2 += buf_avg[1] + ", ";
-      data3 += buf_avg[2] + ", ";
-      data4 += buf_avg[3] + ", ";
-      data5 += buf_avg[4] + ", ";
-      data6 += buf_avg[5] + ", ";
-      data7 += buf_avg[6] + ", ";
-      data8 += buf_avg[7] + ", ";
-      data9 += buf_avg[8] + ", ";
-      data10 += buf_avg[9] + ", ";
-      data11 += buf_avg[10] + ", ";
-      data12 += buf_avg[11] + ", ";
-      data13 += val_13 + ", ";
-      data14 += val_14 + ", ";
+      data1 += String(buf_avg[0]) + ", ";
+      data2 += String(buf_avg[1]) + ", ";
+      data3 += String(buf_avg[2]) + ", ";
+      data4 += String(buf_avg[3]) + ", ";
+      data5 += String(buf_avg[4]) + ", ";
+      data6 += String(buf_avg[5]) + ", ";
+      data7 += String(buf_avg[6]) + ", ";
+      data8 += String(buf_avg[7]) + ", ";
+      data9 += String(buf_avg[8]) + ", ";
+      data10 += String(buf_avg[9]) + ", ";
+      data11 += String(buf_avg[10]) + ", ";
+      data12 += String(buf_avg[11]) + ", ";
+      data13 += String(val_13) + ", ";
+      data14 += String(val_14) + ", ";
   }
   //data collection stops
   else if (!recording && data1.length() > 0){
