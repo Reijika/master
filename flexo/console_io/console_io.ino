@@ -73,7 +73,7 @@ void initIO(){
   pinMode(12, INPUT);
   pinMode(13, INPUT);  
     
-  pinMode(A14, OUTPUT); //FOR ANALOG OUTPUT (PLACEHOLDER)
+  //pinMode(A14, OUTPUT); //FOR ANALOG OUTPUT (PLACEHOLDER)
   pinMode(14, INPUT); //BUTTON TOGGLE FOR RECORDING
 }
 
@@ -149,143 +149,15 @@ void resetBuf(){
   }
 }
 
-void printPlot(){
-  Serial.print(500);
-  Serial.print("  ");
-  Serial.print(0);
-  Serial.print("  ");
-
-  Serial.print(buf_avg[0]);
-  Serial.print("  ");
-  Serial.print(buf_avg[1]);
-  Serial.print("  ");
-  Serial.print(buf_avg[2]);
-  Serial.print("  ");
-  Serial.print(buf_avg[3]);
-  Serial.print("  ");
-  Serial.print(buf_avg[4]);
-  Serial.print("  ");
-  Serial.print(buf_avg[5]);
-  Serial.print("  ");
-  Serial.print(buf_avg[6]);
-  Serial.print("  ");
-  Serial.print(buf_avg[7]);
-  Serial.print("  ");
-  Serial.print(buf_avg[8]);
-  Serial.print("  ");
-  Serial.print(buf_avg[9]);
-  Serial.print("  ");
-  Serial.print(buf_avg[10]);
-  Serial.print("  ");
-  Serial.print(buf_avg[11]);
-  Serial.print("  ");
-  Serial.print(val_13*500);
-  Serial.print("  ");
-  Serial.println(val_14*500);  
-}
-
 void printConsole(){
   String output;
   for (int i = 0; i < 12; ++i){
-    output += buf_avg[i] + ", ";
+    output += String(buf_avg[i]) + ", ";
   }
-  output += val_13 + ", ";
-  output += val_14;
-  Serial.print(output);
+  output += String(val_13) + ", ";
+  output += String(val_14);
+  Serial.println(output);
   output = "";
-}
-
-void toggleButtonState(){
-  buttonState = digitalRead(14);  
-  if (buttonState == HIGH && previousState == LOW && millis() - time > debounce) {
-    if (recording == false){
-      recording = true;
-    }     
-    else{
-      recording = false;
-    }
-    time = millis();    
-  }  
-  previousState = buttonState;
-}
-
-void recordData(){
-  //data collection begins
-  if (recording){
-      data1 += buf_avg[0] + ", ";
-      data2 += buf_avg[1] + ", ";
-      data3 += buf_avg[2] + ", ";
-      data4 += buf_avg[3] + ", ";
-      data5 += buf_avg[4] + ", ";
-      data6 += buf_avg[5] + ", ";
-      data7 += buf_avg[6] + ", ";
-      data8 += buf_avg[7] + ", ";
-      data9 += buf_avg[8] + ", ";
-      data10 += buf_avg[9] + ", ";
-      data11 += buf_avg[10] + ", ";
-      data12 += buf_avg[11] + ", ";
-      data13 += val_13 + ", ";
-      data14 += val_14 + ", ";
-  }
-  //data collection stops
-  else if (!recording && data1.length() > 0){
-    recordToFile();
-  }  
-}
-
-void recordToFile(){
-  int count = 0;
-  File dataFile;    
-
-  //generate a new file name
-  while(true){
-    if (SD.exists("datalog_" + count)){
-      count++;      
-    }
-    else{
-      dataFile = SD.open("datalog_" + count, FILE_WRITE);
-      break;
-    }
-  }    
-  
-  if (dataFile) {
-    dataFile.println(data1);
-    dataFile.println(data2);
-    dataFile.println(data3);
-    dataFile.println(data4);
-    dataFile.println(data5);
-    dataFile.println(data6);
-    dataFile.println(data7);
-    dataFile.println(data8);
-    dataFile.println(data9);
-    dataFile.println(data10);
-    dataFile.println(data11);
-    dataFile.println(data12);
-    dataFile.println(data13);
-    dataFile.println(data14);
-    dataFile.close();
-          
-    Serial.println("file write complete.");
-
-    data1 = "";
-    data2 = "";
-    data3 = "";
-    data4 = "";
-    data5 = "";
-    data6 = "";
-    data7 = "";
-    data8 = "";
-    data9 = "";
-    data10 = "";
-    data11 = "";
-    data12 = "";
-    data13 = "";
-    data14 = "";
-  }
-  // if the file isn't open, pop up an error:
-  else {
-    Serial.println("error opening file");
-  }    
 }
 
 
@@ -293,10 +165,8 @@ void loop() {
 
   updateBuffer();
   calculateAvg(); 
-  printPlot();
   printConsole();
   resetBuf(); 
-
   delay(DELAY);
 }
 
