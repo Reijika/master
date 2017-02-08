@@ -160,12 +160,22 @@ void printConsole(){
   output = "";
 }
 
+void printNoFilter(){
+  String output;
+  for (int i = 0; i < 14; ++i){
+    output += String(analogRead(i)) + ", ";
+  }  
+  Serial.println(output);
+  output = "";
+}
+
 
 void loop() {
 
   updateBuffer();
   calculateAvg(); 
   printConsole();
+  //printNoFilter();
   resetBuf(); 
   delay(DELAY);
 }
