@@ -1,4 +1,19 @@
-//enum reference: https://forum.arduino.cc/index.php?topic=109584.0
+#include <Weight.h>
+
+enum WeightClass {LIGHT, HEAVY, OVERLOAD};
+enum ElevationClass {LOW_ELEV, MODERATE_ELEV, HIGH_ELEV};
+
+//object weight estimation
+Weight scale;
+WeightClass load_type;
+int estimate = 0;
+const int WEIGHT_LOW_THRESHOLD = 10;
+const int WEIGHT_HIGH_THRESHOLD = 50;
+
+//lift timer
+unsigned long start;
+unsigned long end;
+const int MAX_LIFT_DURATION = 60000;
 
 const int BUF_SIZE = 10;
 const int POLL_DELAY = 50;
@@ -19,11 +34,27 @@ int buf_11 [BUF_SIZE];    //wrist - accelerometer z
 int val_12 = 0;           //upper back - tilt sensor 1
 int val_13 = 0;           //lower back - tilt sensor 2
 
+//filtered values - can adjust the pin to sensor mapping later
+int leftPressureUpper = 0;
+int leftPressureLower = 0;
+int leftPressureFinger = 0;
+int rightPressureUpper = 0;
+int rightPressureLower = 0;
+int rightPressureFinger = 0;
+int neckAccelX = 0;
+int neckAccelY = 0;
+int neckAccelZ = 0;
+int wristAccelX = 0;
+int wristAccelY = 0;
+int wristAccelZ = 0;
+int tiltUpperBack = 0;
+int tiltLowerBack = 0;
+
 //input index and avg buffers
 int buf_index[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
 int buf_sum[12]   = {0,0,0,0,0,0,0,0,0,0,0,0};
 int buf_avg[12]   = {0,0,0,0,0,0,0,0,0,0,0,0};
-String output;
+String consoleOutput;
 
 void setup() {
   Serial.begin(9600);
@@ -108,19 +139,102 @@ void resetBuf(){
   }
 }
 
-void printConsole(){  
-  for (int i = 0; i < 12; ++i){
-    output += String(buf_avg[i]) + ", ";
+void mapSensors(){
+  leftPressureUpper   = buf_avg[0];
+  leftPressureLower   = buf_avg[1];
+  leftPressureFinger  = buf_avg[2];
+  rightPressureUpper  = buf_avg[3];
+  rightPressureLower  = buf_avg[4];
+  rightPressureFinger = buf_avg[5];
+  neckAccelX          = buf_avg[6];
+  neckAccelY          = buf_avg[7];
+  neckAccelZ          = buf_avg[8];
+  wristAccelX         = buf_avg[9];
+  wristAccelY         = buf_avg[10];
+  wristAccelZ         = buf_avg[11];
+  tiltUpperBack       = val_12;
+  tiltLowerBack       = val_13;  
+}
+
+
+//Object estimation
+WeightClass estimateWeight(){
+  estimate = scale.estimateWeight(leftPressureUpper, leftPressureLower, leftPressureFinger, rightPressureUpper, rightPressureLower, rightPressureFinger);
+  //Serial.println("Estimated weight: " + String(estimate));
+  
+  if (estimate >= 0 && estimate < WEIGHT_LOW_THRESHOLD){
+    return LIGHT;
   }
-  output = output + String(val_12) + ", " + String(val_13);
-  Serial.println(output);
-  output = "";
+  else if (estimate >= WEIGHT_LOW_THRESHOLD && estimate < WEIGHT_HIGH_THRESHOLD){
+    return HEAVY;
+  }
+  else if (estimate >= WEIGHT_HIGH_THRESHOLD){
+    return OVERLOAD;
+  }
+    
+  return LIGHT;
+}
+
+ElevationClass estimateArmElevation(){
+  return LOW_ELEV;
+}
+
+
+void liftCheck(){
+  load_type = estimateWeight();
+  //printLoadType(load_type);
+
+  if (load_type == LIGHT){    
+    //stop all haptic feedback here
+    //reset timer value here
+  }
+  else if (load_type == HEAVY){
+    //start a timer thread here
+    //check for incorrect posture indicators
+  }
+  else if (load_type == OVERLOAD){
+    triggerHaptic();
+  }  
+}
+
+void triggerHaptic(){
+  analogWrite(14, 255);
 }
 
 void loop() {
-  meanFilterInput();  
-  printConsole();  
+  meanFilterInput(); 
+  mapSensors();
+  //estimateWeight();
+  //liftCheck();   
+  
+  printConsole();      
   resetBuf(); 
   delay(POLL_DELAY);
 }
+
+
+//temporary print functions
+void printLoadType(WeightClass load_type){
+    switch(load_type){
+    case 0:
+      Serial.println("LOAD TYPE: LIGHT");
+      break;
+    case 1:
+      Serial.println("LOAD TYPE: HEAVY");
+      break;
+    case 2:
+      Serial.println("LOAD TYPE: OVERLOAD");
+      break;
+  }  
+}
+
+void printConsole(){  
+  for (int i = 0; i < 12; ++i){
+    consoleOutput += String(buf_avg[i]) + ", ";
+  }
+  consoleOutput = consoleOutput + String(val_12) + ", " + String(val_13);
+  Serial.println(consoleOutput);
+  consoleOutput = "";
+}
+
 
