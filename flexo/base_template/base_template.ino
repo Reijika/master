@@ -13,8 +13,10 @@ const int WEIGHT_HIGH_THRESHOLD = 50;
 //lift timer
 unsigned long start;
 unsigned long end;
+bool heavy_lift = false;
 const int MAX_LIFT_DURATION = 60000;
 
+//buffer constants
 const int BUF_SIZE = 10;
 const int POLL_DELAY = 50;
 
@@ -179,36 +181,57 @@ ElevationClass estimateArmElevation(){
   return LOW_ELEV;
 }
 
+void checkTime(){
+  if (!heavy_lift){
+    heavy_lift = true;
+    start = millis();
+  }
+  end = millis();
+  
+  if ((end - start) >= MAX_LIFT_DURATION){
+    triggerHaptic();
+  }  
+  Serial.println("Elapsed time (ms): " + String(end-start));
+}
 
-void liftCheck(){
+void checkLift(){
   load_type = estimateWeight();
   //printLoadType(load_type);
+  //load_type = HEAVY;
 
-  if (load_type == LIGHT){    
-    //stop all haptic feedback here
-    //reset timer value here
+  if (load_type == LIGHT){
+    heavy_lift = false;
+    stopHaptic();
   }
   else if (load_type == HEAVY){
-    //start a timer thread here
-    //check for incorrect posture indicators
+    checkTime();    
+    //check for incorrect posture indicators    
   }
   else if (load_type == OVERLOAD){
+    heavy_lift = false;
     triggerHaptic();
   }  
 }
 
 void triggerHaptic(){
+  Serial.println("Triggered haptic feedback");
   analogWrite(14, 255);
+}
+
+void stopHaptic(){
+  Serial.println("Stopped haptic feedback");
+  analogWrite(14, 0);
 }
 
 void loop() {
   meanFilterInput(); 
   mapSensors();
   //estimateWeight();
-  //liftCheck();   
-  //triggerHaptic();
-  
-  printConsole();      
+  //checkLift();   
+  //triggerHaptic();  
+  printConsole(); 
+
+       
   resetBuf(); 
   delay(POLL_DELAY);
 }
