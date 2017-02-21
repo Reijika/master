@@ -19,20 +19,20 @@ const int BUF_SIZE = 10;
 const int POLL_DELAY = 50;
 
 // INPUT BUFFERS
-int buf_0 [BUF_SIZE];     //left hand - pressure sensor 1
-int buf_1 [BUF_SIZE];     //left hand - pressure sensor 2
-int buf_2 [BUF_SIZE];     //left hand - pressure sensor 3
-int buf_3 [BUF_SIZE];     //right hand - pressure sensor 1
-int buf_4 [BUF_SIZE];     //right hand - pressure sensor 2
-int buf_5 [BUF_SIZE];     //right hand - pressure sensor 3
-int buf_6 [BUF_SIZE];     //neck - accelerometer x
-int buf_7 [BUF_SIZE];     //neck - accelerometer y
-int buf_8 [BUF_SIZE];     //neck - accelerometer z
-int buf_9 [BUF_SIZE];     //wrist - accelerometer x
-int buf_10 [BUF_SIZE];    //wrist - accelerometer y
-int buf_11 [BUF_SIZE];    //wrist - accelerometer z
-int val_12 = 0;           //upper back - tilt sensor 1
-int val_13 = 0;           //lower back - tilt sensor 2
+int buf_0 [BUF_SIZE];    
+int buf_1 [BUF_SIZE];     
+int buf_2 [BUF_SIZE];     
+int buf_3 [BUF_SIZE];     
+int buf_4 [BUF_SIZE];     
+int buf_5 [BUF_SIZE];     
+int buf_6 [BUF_SIZE];     
+int buf_7 [BUF_SIZE];     
+int buf_8 [BUF_SIZE];     
+int buf_9 [BUF_SIZE];     
+int buf_10 [BUF_SIZE];    
+int buf_11 [BUF_SIZE];    
+int val_12 = 0;           
+int val_13 = 0;           
 
 //filtered values - can adjust the pin to sensor mapping later
 int leftPressureUpper = 0;
@@ -68,33 +68,33 @@ void initIO(){
   pinMode(3, INPUT);
   pinMode(4, INPUT);
   pinMode(5, INPUT);
-  pinMode(6, INPUT);
+  pinMode(6, INPUT);  
   pinMode(7, INPUT);
-  pinMode(8, INPUT);
-  pinMode(9, INPUT);
-  pinMode(10, INPUT);
-  pinMode(11, INPUT);
-  pinMode(12, INPUT);
-  pinMode(13, INPUT);
-  pinMode(14, OUTPUT); //ANALOG OUTPUT
+  pinMode(26, INPUT);
+  pinMode(27, INPUT);
+  pinMode(28, INPUT);
+  pinMode(29, INPUT);
+  pinMode(30, INPUT);
+  pinMode(31, INPUT);  
+  pinMode(A14, OUTPUT); //ANALOG OUTPUT
 }
 
 void meanFilterInput(){
   //record analog input, 13 and 14 are binary, so no averaging is required
-  buf_0[buf_index[0]] = analogRead(0);
-  buf_1[buf_index[1]] = analogRead(1);
-  buf_2[buf_index[2]] = analogRead(2);
-  buf_3[buf_index[3]] = analogRead(3);
-  buf_4[buf_index[4]] = analogRead(4);
-  buf_5[buf_index[5]] = analogRead(5);
-  buf_6[buf_index[6]] = analogRead(6);
-  buf_7[buf_index[7]] = analogRead(7);
-  buf_8[buf_index[8]] = analogRead(8);
-  buf_9[buf_index[9]] = analogRead(9);
-  buf_10[buf_index[10]] = analogRead(10);
-  buf_11[buf_index[11]] = analogRead(11);  
-  val_12 = analogRead(12);
-  val_13 = analogRead(13);
+  buf_0[buf_index[0]]   = analogRead(0);  //left finger
+  buf_1[buf_index[1]]   = analogRead(1);  //left upper palm
+  buf_2[buf_index[2]]   = analogRead(2);  //right finger
+  buf_3[buf_index[3]]   = analogRead(3);  //right upper palm
+  buf_4[buf_index[4]]   = analogRead(4);  //right lower palm
+  buf_5[buf_index[5]]   = analogRead(5);  //left lower palm
+  buf_6[buf_index[6]]   = analogRead(26); //accel_1_x
+  buf_7[buf_index[7]]   = analogRead(27); //accel_1_y
+  buf_8[buf_index[8]]   = analogRead(28); //accel_1_z
+  buf_9[buf_index[9]]   = analogRead(29); //accel_2_x
+  buf_10[buf_index[10]] = analogRead(30); //accel_2_y
+  buf_11[buf_index[11]] = analogRead(31); //accel_2_z
+  val_12                = analogRead(6);  //tilt_short
+  val_13                = analogRead(7);  //tilt_tall
 
   //update buffer indices
   buf_index[0] = (buf_index[0] + 1) % BUF_SIZE;
@@ -140,20 +140,20 @@ void resetBuf(){
 }
 
 void mapSensors(){
-  leftPressureUpper   = buf_avg[0];
-  leftPressureLower   = buf_avg[1];
-  leftPressureFinger  = buf_avg[2];
+  leftPressureFinger  = buf_avg[0];
+  leftPressureUpper   = buf_avg[1];
+  rightPressureFinger = buf_avg[2];
   rightPressureUpper  = buf_avg[3];
   rightPressureLower  = buf_avg[4];
-  rightPressureFinger = buf_avg[5];
-  neckAccelX          = buf_avg[6];
-  neckAccelY          = buf_avg[7];
-  neckAccelZ          = buf_avg[8];
-  wristAccelX         = buf_avg[9];
-  wristAccelY         = buf_avg[10];
-  wristAccelZ         = buf_avg[11];
-  tiltUpperBack       = val_12;
-  tiltLowerBack       = val_13;  
+  leftPressureLower   = buf_avg[5];    
+  neckAccelX          = buf_avg[6];   //accel_1_x
+  neckAccelY          = buf_avg[7];   //accel_1_y
+  neckAccelZ          = buf_avg[8];   //accel_1_z
+  wristAccelX         = buf_avg[9];   //accel_2_x
+  wristAccelY         = buf_avg[10];  //accel_2_y
+  wristAccelZ         = buf_avg[11];  //accel_2_z
+  tiltUpperBack       = val_12;       //tilt_short
+  tiltLowerBack       = val_13;       //tilt_tall
 }
 
 
@@ -206,6 +206,7 @@ void loop() {
   mapSensors();
   //estimateWeight();
   //liftCheck();   
+  //triggerHaptic();
   
   printConsole();      
   resetBuf(); 
