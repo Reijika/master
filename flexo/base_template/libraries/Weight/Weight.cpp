@@ -16,9 +16,10 @@ Weight::Weight(){
   upperValue = 0;
   lowerValue = 0;
   fingerValue = 0;
+  estimate = 0;
 }
 
-int Weight::estimateWeight(int leftPressureUpper, int leftPressureLower, int leftPressureFinger, int rightPressureUpper, int rightPressureLower, int rightPressureFinger){
+LoadType Weight::estimateWeight(int leftPressureUpper, int leftPressureLower, int leftPressureFinger, int rightPressureUpper, int rightPressureLower, int rightPressureFinger){
   //check if the left hand is involved in a lift attempt
   leftUpper = (leftPressureUpper >= ACTIVE_THRESHOLD) ? true : false;
   leftLower = (leftPressureLower >= ACTIVE_THRESHOLD) ? true : false;
@@ -77,15 +78,22 @@ int Weight::estimateWeight(int leftPressureUpper, int leftPressureLower, int lef
     }    
   }    
 
-  // Serial.println("L HAND: " + String(leftHandActive) + 
-  //              ", L UPPER: " + String(leftUpper) + 
-  //              ", L LOWER: " + String(leftLower) + 
-  //              ", L FINGER: " + String(leftFinger) + 
-  //              ", R HAND: " + String(rightHandActive) + 
-  //              ", R UPPER: " + String(rightUpper) + 
-  //              ", R LOWER: " + String(rightLower) + 
-  //              ", R FINGER: " + String(rightFinger));  
+  //Serial.println("L HAND: " + String(leftHandActive) + ", L UPPER: " + String(leftUpper) + ", L LOWER: " + String(leftLower) + ", L FINGER: " + String(leftFinger) + ", R HAND: " + String(rightHandActive) + ", R UPPER: " + String(rightUpper) + ", R LOWER: " + String(rightLower) + ", R FINGER: " + String(rightFinger));
 
-  return 0;
+  //translate estimated weight into a classification
+  if (estimate >= 0 && estimate < WEIGHT_LOW_THRESHOLD){
+    //Serial.println("LOAD TYPE: LIGHT");
+    return LIGHT;
+  }
+  else if (estimate >= WEIGHT_LOW_THRESHOLD && estimate < WEIGHT_HIGH_THRESHOLD){
+    //Serial.println("LOAD TYPE: HEAVY");
+    return HEAVY;
+  }
+  else if (estimate >= WEIGHT_HIGH_THRESHOLD){
+    //Serial.println("LOAD TYPE: OVERLOAD");
+    return OVERLOAD;
+  }
+
+  return ERROR;
 }
 

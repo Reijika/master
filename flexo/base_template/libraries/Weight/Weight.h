@@ -3,12 +3,16 @@
 
 #include "Arduino.h"
 
+enum LoadType {LIGHT, HEAVY, OVERLOAD, ERROR};
+
 class Weight{
   public:
     Weight();
-    int estimateWeight(int leftPressureUpper, int leftPressureLower, int leftPressureFinger, int rightPressureUpper, int rightPressureLower, int rightPressureFinger);
+    LoadType estimateWeight(int leftPressureUpper, int leftPressureLower, int leftPressureFinger, int rightPressureUpper, int rightPressureLower, int rightPressureFinger);
   private:
 	const int ACTIVE_THRESHOLD = 100;
+    const int WEIGHT_LOW_THRESHOLD = 10;
+    const int WEIGHT_HIGH_THRESHOLD = 50;
     bool leftHandActive;
     bool leftUpper;
     bool leftLower;
@@ -23,6 +27,7 @@ class Weight{
     int upperValue;
     int lowerValue;
     int fingerValue;
+    int estimate;
 };
 
 #endif

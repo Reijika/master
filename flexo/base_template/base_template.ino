@@ -1,19 +1,21 @@
 #include <Weight.h>
-
-enum WeightClass {LIGHT, HEAVY, OVERLOAD};
-enum ElevationClass {LOW_ELEV, MODERATE_ELEV, HIGH_ELEV};
+#include <PostureDetector.h>
 
 //object weight estimation
 Weight scale;
-WeightClass load_type;
-int estimate = 0;
-const int WEIGHT_LOW_THRESHOLD = 10;
-const int WEIGHT_HIGH_THRESHOLD = 50;
+LoadType load_type;
+
+//incorrect posture detection
+PostureDetector detector;
+ElevationType elevation_type;
+TwistType twist_type;
+BackTiltType backtilt_type;
+
 
 //lift timer
 unsigned long start;
 unsigned long end;
-bool heavy_lift = false;
+bool heavy_lift = false;  //used by checkTime to check if a lift attempt has started
 const int MAX_LIFT_DURATION = 60000;
 
 //buffer constants
@@ -159,28 +161,6 @@ void mapSensors(){
 }
 
 
-//Object estimation
-WeightClass estimateWeight(){
-  estimate = scale.estimateWeight(leftPressureUpper, leftPressureLower, leftPressureFinger, rightPressureUpper, rightPressureLower, rightPressureFinger);
-  //Serial.println("Estimated weight: " + String(estimate));
-  
-  if (estimate >= 0 && estimate < WEIGHT_LOW_THRESHOLD){
-    return LIGHT;
-  }
-  else if (estimate >= WEIGHT_LOW_THRESHOLD && estimate < WEIGHT_HIGH_THRESHOLD){
-    return HEAVY;
-  }
-  else if (estimate >= WEIGHT_HIGH_THRESHOLD){
-    return OVERLOAD;
-  }
-    
-  return LIGHT;
-}
-
-ElevationClass estimateArmElevation(){
-  return LOW_ELEV;
-}
-
 void checkTime(){
   if (!heavy_lift){
     heavy_lift = true;
@@ -195,62 +175,59 @@ void checkTime(){
 }
 
 void checkLift(){
-  load_type = estimateWeight();
-  //printLoadType(load_type);
-  //load_type = HEAVY;
-
+  load_type = scale.estimateWeight(leftPressureUpper, leftPressureLower, leftPressureFinger, rightPressureUpper, rightPressureLower, rightPressureFinger);
+    
   if (load_type == LIGHT){
-    heavy_lift = false;
-    stopHaptic();
+    heavy_lift = false;    
+    detector.clearImpulseState();
+    stopHaptic();    
   }
   else if (load_type == HEAVY){
+    //check lift duration
     checkTime();    
+    
     //check for incorrect posture indicators    
+    elevation_type = detector.checkArmElevation(wristAccelX, wristAccelY, wristAccelZ);
+    twist_type = detector.checkImpulse(neckAccelX, neckAccelY, neckAccelZ, wristAccelX, wristAccelY, wristAccelZ);
+    backtilt_type = detector.checkBackTilt(tiltUpperBack, tiltLowerBack);
+
+    //if any indicators of incorrect posture are found, trigger warning
+    if((elevation_type == HIGH_ELEV) || (twist_type == TWIST) || (backtilt_type == FULLY_BENT)){
+      triggerHaptic();
+    }
+    else{
+      stopHaptic();      
+    }
   }
   else if (load_type == OVERLOAD){
     heavy_lift = false;
+    detector.clearImpulseState();
     triggerHaptic();
   }  
 }
 
 void triggerHaptic(){
-  Serial.println("Triggered haptic feedback");
+  //Serial.println("Triggered haptic feedback");
   analogWrite(14, 255);
 }
 
 void stopHaptic(){
-  Serial.println("Stopped haptic feedback");
+  //Serial.println("Stopped haptic feedback");
   analogWrite(14, 0);
 }
 
 void loop() {
   meanFilterInput(); 
-  mapSensors();
-  //estimateWeight();
-  //checkLift();   
-  //triggerHaptic();  
-  printConsole(); 
-
-       
+  mapSensors();  
+  
+  checkLift();     
+  //triggerHaptic();
+  //printConsole();
+         
   resetBuf(); 
   delay(POLL_DELAY);
 }
 
-
-//temporary print functions
-void printLoadType(WeightClass load_type){
-    switch(load_type){
-    case 0:
-      Serial.println("LOAD TYPE: LIGHT");
-      break;
-    case 1:
-      Serial.println("LOAD TYPE: HEAVY");
-      break;
-    case 2:
-      Serial.println("LOAD TYPE: OVERLOAD");
-      break;
-  }  
-}
 
 void printConsole(){  
   for (int i = 0; i < 12; ++i){
