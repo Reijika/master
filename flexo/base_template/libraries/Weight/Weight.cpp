@@ -21,15 +21,15 @@ Weight::Weight(){
 
 LoadType Weight::estimateWeight(int leftPressureUpper, int leftPressureLower, int leftPressureFinger, int rightPressureUpper, int rightPressureLower, int rightPressureFinger){
   //check if the left hand is involved in a lift attempt
-  leftUpper = (leftPressureUpper >= ACTIVE_THRESHOLD) ? true : false;
-  leftLower = (leftPressureLower >= ACTIVE_THRESHOLD) ? true : false;
-  leftFinger = (leftPressureFinger >= ACTIVE_THRESHOLD) ? true : false;
+  leftUpper = (leftPressureUpper >= ACTIVE_25_THRESHOLD) ? true : false;
+  leftLower = (leftPressureLower >= ACTIVE_25_THRESHOLD) ? true : false;
+  leftFinger = (leftPressureFinger >= ACTIVE_100_THRESHOLD) ? true : false;
   leftHandActive = (leftUpper || leftLower || leftFinger) ? true : false;  
 
   //check if the right hand is involved in a lift attempt
-  rightUpper = (rightPressureUpper >= ACTIVE_THRESHOLD) ? true : false;
-  rightLower = (rightPressureLower >= ACTIVE_THRESHOLD) ? true : false;
-  rightFinger = (rightPressureFinger >= ACTIVE_THRESHOLD) ? true : false;
+  rightUpper = (rightPressureUpper >= ACTIVE_25_THRESHOLD) ? true : false;
+  rightLower = (rightPressureLower >= ACTIVE_25_THRESHOLD) ? true : false;
+  rightFinger = (rightPressureFinger >= ACTIVE_100_THRESHOLD) ? true : false;
   rightHandActive = (rightUpper || rightLower || rightFinger) ? true : false;
 
   //determine which pressure sensors are involved
@@ -42,6 +42,14 @@ LoadType Weight::estimateWeight(int leftPressureUpper, int leftPressureLower, in
     upperValue = max(leftPressureUpper, rightPressureUpper);
     lowerValue = max(leftPressureLower, rightPressureLower);
     fingerValue = max(leftPressureFinger, rightPressureFinger);    
+
+//handle - upper, finger
+
+//box, lifting by edges - finger, upper, lower
+
+//box, lifting by palms below - finger, lower
+
+
 
     //2 handed lift sensor combinations
     if (upper && lower && finger){
@@ -78,7 +86,7 @@ LoadType Weight::estimateWeight(int leftPressureUpper, int leftPressureLower, in
     }    
   }    
 
-  //Serial.println("L HAND: " + String(leftHandActive) + ", L UPPER: " + String(leftUpper) + ", L LOWER: " + String(leftLower) + ", L FINGER: " + String(leftFinger) + ", R HAND: " + String(rightHandActive) + ", R UPPER: " + String(rightUpper) + ", R LOWER: " + String(rightLower) + ", R FINGER: " + String(rightFinger));
+  Serial.println("LH: " + String(leftHandActive) + ", LU: " + String(leftUpper) + ", LL: " + String(leftLower) + ", LF: " + String(leftFinger) + ", RH: " + String(rightHandActive) + ", RU: " + String(rightUpper) + ", RL: " + String(rightLower) + ", RF: " + String(rightFinger));
 
   //translate estimated weight into a classification
   if (estimate >= 0 && estimate < WEIGHT_LOW_THRESHOLD){

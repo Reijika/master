@@ -21,17 +21,44 @@ PostureDetector::PostureDetector(){
 //checks the inequalities of the xyz values to determine arm elevation
 ElevationType PostureDetector::checkArmElevation(int wristAccelX, int wristAccelY, int wristAccelZ){
 
+
+
+  //inequalities for right palm up position
+  //low      -> x > y > z
+  //moderate -> y > x > z
+  //high     -> y > z > x
   if (wristAccelX >= wristAccelY && wristAccelY >= wristAccelZ){
+    Serial.println("UP_POS_ELEV: LOW"); 
     return LOW_ELEV;
   }
   else if (wristAccelY >= wristAccelX && wristAccelX >= wristAccelZ){
+    Serial.println("UP_POS_ELEV: MODERATE");
     return MODERATE_ELEV;
   }
   else if (wristAccelY >= wristAccelZ && wristAccelZ >= wristAccelX){
+    Serial.println("UP_POS_ELEV: HIGH");
     return HIGH_ELEV;
   }
+
+  //inequalities for right palm facing the inside position
+  //low      -> x > z > y
+  //moderate -> z > x > y
+  //high     -> z > y > x
+  else if (wristAccelX >= wristAccelZ && wristAccelZ >= wristAccelY){
+    Serial.println("SIDE_POS_ELEV: LOW");
+    return LOW_ELEV;
+  }
+    else if (wristAccelZ >= wristAccelX && wristAccelX >= wristAccelY){
+    Serial.println("SIDE_POS_ELEV: MODERATE");
+    return MODERATE_ELEV;
+  }
+  else if (wristAccelZ >= wristAccelY && wristAccelY >= wristAccelX){
+    Serial.println("SIDE_POS_ELEV: HIGH");
+    return HIGH_ELEV;
+  }
+
   else {
-    Serial.println("Don't flail your arms around when lifting.");
+    //Serial.println("Don't flail your arms around when lifting.");
     return UNKNOWN_ELEV;
   }
 }
@@ -60,17 +87,21 @@ TwistType PostureDetector::checkImpulse(int neckAccelX, int neckAccelY, int neck
   z_avg = z_avg/float(start_index);
 
   for (int i = 0; i < start_index; ++i){
-    if(accel_x[i] < (x_avg*(1-ACCELERATION_THRESHOLD)) && accel_x[i] > (x_avg*(1+ACCELERATION_THRESHOLD))){
+    if(accel_x[i] < (x_avg*(1-ACCELERATION_THRESHOLD)) || accel_x[i] > (x_avg*(1+ACCELERATION_THRESHOLD))){
+      Serial.println("TWIST");
       return TWIST;  
     }
-    if(accel_y[i] < (y_avg*(1-ACCELERATION_THRESHOLD)) && accel_y[i] > (y_avg*(1+ACCELERATION_THRESHOLD))){
-      return TWIST;  
+    if(accel_y[i] < (y_avg*(1-ACCELERATION_THRESHOLD)) || accel_y[i] > (y_avg*(1+ACCELERATION_THRESHOLD))){
+      Serial.println("TWIST"); 
+      return TWIST;             
     }
-    if(accel_z[i] < (z_avg*(1-ACCELERATION_THRESHOLD)) && accel_z[i] > (z_avg*(1+ACCELERATION_THRESHOLD))){
+    if(accel_z[i] < (z_avg*(1-ACCELERATION_THRESHOLD)) || accel_z[i] > (z_avg*(1+ACCELERATION_THRESHOLD))){
+      Serial.println("TWIST");
       return TWIST;  
     }
   }
 
+  Serial.println("NONE");
   return NONE;
 }
 
@@ -91,16 +122,21 @@ void PostureDetector::clearImpulseState(){
 //checks which of the tilt sensors are active
 BackTiltType PostureDetector::checkBackTilt(int tiltUpperBack, int tiltLowerBack){
 
+  //Serial.println(String(tiltUpperBack) + ", " + String(tiltLowerBack));
+
   upperTilted = (tiltUpperBack > UPPER_BACK_MEDIAN_THRESHOLD) ? true : false;
   lowerTilted = (tiltLowerBack > LOWER_BACK_MEDIAN_THRESHOLD) ? true : false;
 
   if (!upperTilted && !lowerTilted){
+    Serial.println("BACK: STRAIGHT");
     return STRAIGHT;
   }
   else if (upperTilted && !lowerTilted){
+    Serial.println("BACK: PARTIALLY_BENT");
     return PARTIALLY_BENT;
   }
   else if (upperTilted && lowerTilted){
+    Serial.println("BACK: FULLY_BENT");    
     return FULLY_BENT;
   }
   else{

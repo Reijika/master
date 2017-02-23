@@ -16,16 +16,16 @@ class PostureDetector{
     void clearImpulseState();
 
   private:
-    const int UPPER_BACK_MEDIAN_THRESHOLD = 285;
-    const int LOWER_BACK_MEDIAN_THRESHOLD = 830;
+    const int UPPER_BACK_MEDIAN_THRESHOLD = 300; // range - 30-550
+    const int LOWER_BACK_MEDIAN_THRESHOLD = 175; // range - 1- 300
     bool upperTilted;
     bool lowerTilted;    
 
-    const float ACCELERATION_THRESHOLD = 0.2;
-    const int ACCELERATION_BUFFER_SIZE = 25;
-    int accel_x [25];
-    int accel_y [25];
-    int accel_z [25];
+    const float ACCELERATION_THRESHOLD = 0.25; //sensitivity of twist detection
+    const int ACCELERATION_BUFFER_SIZE = 20; //affects the lenght of twists
+    int accel_x [20];
+    int accel_y [20];
+    int accel_z [20];
     float x_avg;
     float y_avg;
     float z_avg;

@@ -19,7 +19,7 @@ bool heavy_lift = false;  //used by checkTime to check if a lift attempt has sta
 const int MAX_LIFT_DURATION = 60000;
 
 //buffer constants
-const int BUF_SIZE = 10;
+const int BUF_SIZE = 5;
 const int POLL_DELAY = 50;
 
 // INPUT BUFFERS
@@ -80,7 +80,7 @@ void initIO(){
   pinMode(29, INPUT);
   pinMode(30, INPUT);
   pinMode(31, INPUT);  
-  pinMode(A14, OUTPUT); //ANALOG OUTPUT
+  pinMode(14, OUTPUT); //ANALOG OUTPUT
 }
 
 void meanFilterInput(){
@@ -91,14 +91,14 @@ void meanFilterInput(){
   buf_3[buf_index[3]]   = analogRead(3);  //right upper palm
   buf_4[buf_index[4]]   = analogRead(4);  //right lower palm
   buf_5[buf_index[5]]   = analogRead(5);  //left lower palm
-  buf_6[buf_index[6]]   = analogRead(26); //accel_1_x
-  buf_7[buf_index[7]]   = analogRead(27); //accel_1_y
-  buf_8[buf_index[8]]   = analogRead(28); //accel_1_z
-  buf_9[buf_index[9]]   = analogRead(29); //accel_2_x
-  buf_10[buf_index[10]] = analogRead(30); //accel_2_y
-  buf_11[buf_index[11]] = analogRead(31); //accel_2_z
-  val_12                = analogRead(6);  //tilt_short
-  val_13                = analogRead(7);  //tilt_tall
+  buf_6[buf_index[6]]   = analogRead(26); //accel_1_x_neck
+  buf_7[buf_index[7]]   = analogRead(27); //accel_1_y_neck
+  buf_8[buf_index[8]]   = analogRead(28); //accel_1_z_neck
+  buf_9[buf_index[9]]   = analogRead(29); //accel_2_x_wrist
+  buf_10[buf_index[10]] = analogRead(30); //accel_2_y_wrist
+  buf_11[buf_index[11]] = analogRead(31); //accel_2_z_wrist
+  val_12                = analogRead(7);  //tilt_short_upper
+  val_13                = analogRead(6);  //tilt_tall_lower
 
   //update buffer indices
   buf_index[0] = (buf_index[0] + 1) % BUF_SIZE;
@@ -198,8 +198,7 @@ void checkLift(){
     else{
       stopHaptic();      
     }
-  }
-  else if (load_type == OVERLOAD){
+  }  else if (load_type == OVERLOAD){
     heavy_lift = false;
     detector.clearImpulseState();
     triggerHaptic();
@@ -219,10 +218,21 @@ void stopHaptic(){
 void loop() {
   meanFilterInput(); 
   mapSensors();  
-  
-  checkLift();     
+
+  Serial.println(String(neckAccelX) + ", " + String(neckAccelY) + ", " + String(neckAccelZ));
+
+  //checkLift();     
   //triggerHaptic();
   //printConsole();
+  //load_type = scale.estimateWeight(leftPressureUpper, leftPressureLower, leftPressureFinger, rightPressureUpper, rightPressureLower, rightPressureFinger);
+
+  //tested/calibrated
+  //twist_type = detector.checkImpulse(neckAccelX, neckAccelY, neckAccelZ, wristAccelX, wristAccelY, wristAccelZ);
+  //elevation_type = detector.checkArmElevation(wristAccelX, wristAccelY, wristAccelZ);
+  //backtilt_type = detector.checkBackTilt(tiltUpperBack, tiltLowerBack);
+
+  
+  //printSelect();
          
   resetBuf(); 
   delay(POLL_DELAY);
@@ -234,6 +244,15 @@ void printConsole(){
     consoleOutput += String(buf_avg[i]) + ", ";
   }
   consoleOutput = consoleOutput + String(val_12) + ", " + String(val_13);
+  Serial.println(consoleOutput);
+  consoleOutput = "";
+}
+
+void printSelect(){  
+  for (int i = 0; i < 6; ++i){
+    consoleOutput += String(buf_avg[i]) + ", ";
+  }
+  //consoleOutput = consoleOutput + String(val_12) + ", " + String(val_13);
   Serial.println(consoleOutput);
   consoleOutput = "";
 }
