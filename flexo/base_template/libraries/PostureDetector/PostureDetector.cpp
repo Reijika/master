@@ -21,8 +21,6 @@ PostureDetector::PostureDetector(){
 //checks the inequalities of the xyz values to determine arm elevation
 ElevationType PostureDetector::checkArmElevation(int wristAccelX, int wristAccelY, int wristAccelZ){
 
-
-
   //inequalities for right palm up position
   //low      -> x > y > z
   //moderate -> y > x > z
@@ -88,15 +86,15 @@ TwistType PostureDetector::checkImpulse(int neckAccelX, int neckAccelY, int neck
 
   for (int i = 0; i < start_index; ++i){
     if(accel_x[i] < (x_avg*(1-ACCELERATION_THRESHOLD)) || accel_x[i] > (x_avg*(1+ACCELERATION_THRESHOLD))){
-      Serial.println("TWIST");
+      Serial.println("X TWIST");
       return TWIST;  
     }
     if(accel_y[i] < (y_avg*(1-ACCELERATION_THRESHOLD)) || accel_y[i] > (y_avg*(1+ACCELERATION_THRESHOLD))){
-      Serial.println("TWIST"); 
+      Serial.println("Y TWIST"); 
       return TWIST;             
     }
     if(accel_z[i] < (z_avg*(1-ACCELERATION_THRESHOLD)) || accel_z[i] > (z_avg*(1+ACCELERATION_THRESHOLD))){
-      Serial.println("TWIST");
+      Serial.println("Z TWIST");
       return TWIST;  
     }
   }

@@ -10,10 +10,10 @@ class Weight{
     Weight();
     LoadType estimateWeight(int leftPressureUpper, int leftPressureLower, int leftPressureFinger, int rightPressureUpper, int rightPressureLower, int rightPressureFinger);
   private:
-	const int ACTIVE_25_THRESHOLD = 25;
-    const int ACTIVE_100_THRESHOLD = 10;
-    const int WEIGHT_LOW_THRESHOLD = 10;
-    const int WEIGHT_HIGH_THRESHOLD = 50;
+	const int ACTIVE_25_THRESHOLD = 5; //25
+    const int ACTIVE_100_THRESHOLD = 5; //25
+    const double WEIGHT_LOW_THRESHOLD = 10.0;
+    const double WEIGHT_HIGH_THRESHOLD = 50.0;
     bool leftHandActive;
     bool leftUpper;
     bool leftLower;
@@ -24,11 +24,8 @@ class Weight{
     bool rightFinger;
     bool upper;
     bool lower;
-    bool finger;
-    int upperValue;
-    int lowerValue;
-    int fingerValue;
-    int estimate;
+    bool finger;    
+    double estimate;
 };
 
 #endif

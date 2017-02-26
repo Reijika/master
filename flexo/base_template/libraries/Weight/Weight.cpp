@@ -13,10 +13,7 @@ Weight::Weight(){
   upper = false;
   lower = false;
   finger = false;
-  upperValue = 0;
-  lowerValue = 0;
-  fingerValue = 0;
-  estimate = 0;
+  estimate = 0.0;
 }
 
 LoadType Weight::estimateWeight(int leftPressureUpper, int leftPressureLower, int leftPressureFinger, int rightPressureUpper, int rightPressureLower, int rightPressureFinger){
@@ -32,64 +29,47 @@ LoadType Weight::estimateWeight(int leftPressureUpper, int leftPressureLower, in
   rightFinger = (rightPressureFinger >= ACTIVE_100_THRESHOLD) ? true : false;
   rightHandActive = (rightUpper || rightLower || rightFinger) ? true : false;
 
-  //determine which pressure sensors are involved
+  //determine which pressure sensors are involved (for the 2 hand case where we assume the active sensors are symmetrical)
   upper = leftUpper || rightUpper;
   lower = leftLower || rightLower;
   finger = leftFinger || rightFinger;
 
-  // 2 hand lift 
-  if (leftHandActive && rightHandActive){
-    upperValue = max(leftPressureUpper, rightPressureUpper);
-    lowerValue = max(leftPressureLower, rightPressureLower);
-    fingerValue = max(leftPressureFinger, rightPressureFinger);    
+  //Serial.println("LH: " + String(leftHandActive) + ", LU: " + String(leftUpper) + ", LL: " + String(leftLower) + ", LF: " + String(leftFinger) + ", RH: " + String(rightHandActive) + ", RU: " + String(rightUpper) + ", RL: " + String(rightLower) + ", RF: " + String(rightFinger));
 
-//handle - upper, finger
+  //specific cases
+  //1-hand handle - upper, finger
+  //2-hand box, lifting by edges - finger
+  //2-hand box, lifting by palms below - lower, finger
 
-//box, lifting by edges - finger, upper, lower
-
-//box, lifting by palms below - finger, lower
-
-
-
-    //2 handed lift sensor combinations
-    if (upper && lower && finger){
-      //TBA
-    }
-    else if (upper && lower && finger){
-      //TBA      
-    }
-    else if (upper && lower && finger){
-      //TBA      
-    }
-    else if (upper && lower && finger){
-      
-    }
+  //estimate weight from regression model
+  if ( (leftHandActive && rightHandActive) && (!upper && !lower && finger) ){ //2-hand edge lift
+    estimate = (0.045337*double(leftPressureFinger)) + (1.17228*double(rightPressureFinger)) - 2.94041;
   }
-  // 1 hand lift
-  else if ( (leftHandActive && !rightHandActive) || (!leftHandActive && rightHandActive) ){
-    upperValue = leftPressureUpper;
-    lowerValue = leftPressureLower;
-    fingerValue = leftPressureFinger;
-
-    //1 handed lift sensor combinations
-    if (upper && lower && finger){
-      //TBA      
-    }
-    else if (upper && lower && finger){
-      //TBA      
-    }
-    else if (upper && lower && finger){
-      //TBA      
-    }
-    else if (upper && lower && finger){
-      //TBA      
-    }    
+  else if ( (leftHandActive && rightHandActive) && (!upper && lower && finger) ){ //2-hand palm lift
+    estimate = (0.107801*double(leftPressureLower)) + (-0.73475*double(leftPressureFinger)) + (0.123641*double(rightPressureLower)) + (5.874704*double(rightPressureFinger)) - 48.3381;
+  }
+  else if ( (leftHandActive && !rightHandActive) && (leftUpper && !leftLower && leftFinger) ) { // 1 hand left handle lift
+    estimate = (-0.02849*double(leftPressureUpper)) + (0.980591*double(leftPressureFinger)) - 2.36751;
+  }  
+  else if ( (!leftHandActive && rightHandActive) && (rightUpper && !rightLower && rightFinger) ){ // 1 hand right handle lift
+    estimate = (0.057143*double(rightPressureUpper)) + (0.009455*double(rightPressureFinger)) + 1.961952;    
   }    
+  else if ( !leftHandActive && !rightHandActive ){ //if both hands are inactive, no lift attempt
+    estimate = 0.0;
+  }
+  else {  // otherwise, the user is lifting something, but it doesn't fall into the above cases
+    estimate = (0.021749*double(leftPressureUpper)) + (0.009623*double(leftPressureLower)) + (0.400587*double(leftPressureFinger)) + (0.003474*double(rightPressureUpper)) + (0.09879*double(rightPressureLower)) + (0.51716*double(rightPressureFinger)) - 0.05779;
+  }
 
-  Serial.println("LH: " + String(leftHandActive) + ", LU: " + String(leftUpper) + ", LL: " + String(leftLower) + ", LF: " + String(leftFinger) + ", RH: " + String(rightHandActive) + ", RU: " + String(rightUpper) + ", RL: " + String(rightLower) + ", RF: " + String(rightFinger));
+  //accounts for potential negative case
+  if (estimate < 0.0){
+    estimate = 0.0;
+  }
+
+  //Serial.println("Weight Estimate: " + String(estimate));
 
   //translate estimated weight into a classification
-  if (estimate >= 0 && estimate < WEIGHT_LOW_THRESHOLD){
+  if (estimate >= 0.0 && estimate < WEIGHT_LOW_THRESHOLD){
     //Serial.println("LOAD TYPE: LIGHT");
     return LIGHT;
   }

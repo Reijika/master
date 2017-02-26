@@ -219,7 +219,8 @@ void loop() {
   meanFilterInput(); 
   mapSensors();  
 
-  Serial.println(String(neckAccelX) + ", " + String(neckAccelY) + ", " + String(neckAccelZ));
+  //Serial.println(String(neckAccelX) + ", " + String(neckAccelY) + ", " + String(neckAccelZ));
+  Serial.println(String(leftPressureUpper) + ", " + String(leftPressureLower) + ", " + String(leftPressureFinger) + ", " + String(rightPressureUpper) + ", " + String(rightPressureLower) + ", " + String(rightPressureFinger));
 
   //checkLift();     
   //triggerHaptic();
