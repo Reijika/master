@@ -12,7 +12,7 @@ TwistType twist_type;
 BackTiltType backtilt_type;
 
 
-//lift timer
+//lift timerr
 unsigned long start;
 unsigned long end;
 bool heavy_lift = false;  //used by checkTime to check if a lift attempt has started
@@ -220,17 +220,17 @@ void loop() {
   mapSensors();  
 
   //Serial.println(String(neckAccelX) + ", " + String(neckAccelY) + ", " + String(neckAccelZ));
-  Serial.println(String(leftPressureUpper) + ", " + String(leftPressureLower) + ", " + String(leftPressureFinger) + ", " + String(rightPressureUpper) + ", " + String(rightPressureLower) + ", " + String(rightPressureFinger));
+  //Serial.println(String(leftPressureUpper) + ", " + String(leftPressureLower) + ", " + String(leftPressureFinger) + ", " + String(rightPressureUpper) + ", " + String(rightPressureLower) + ", " + String(rightPressureFinger));
 
   //checkLift();     
   //triggerHaptic();
   //printConsole();
-  //load_type = scale.estimateWeight(leftPressureUpper, leftPressureLower, leftPressureFinger, rightPressureUpper, rightPressureLower, rightPressureFinger);
 
   //tested/calibrated
   //twist_type = detector.checkImpulse(neckAccelX, neckAccelY, neckAccelZ, wristAccelX, wristAccelY, wristAccelZ);
   //elevation_type = detector.checkArmElevation(wristAccelX, wristAccelY, wristAccelZ);
   //backtilt_type = detector.checkBackTilt(tiltUpperBack, tiltLowerBack);
+  load_type = scale.estimateWeight(leftPressureUpper, leftPressureLower, leftPressureFinger, rightPressureUpper, rightPressureLower, rightPressureFinger);
 
   
   //printSelect();
