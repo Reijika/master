@@ -5,7 +5,7 @@
 Weight scale;
 LoadType load_type;
 
-//incorrect posture detection
+//posture detection
 PostureDetector detector;
 ElevationType elevation_type;
 TwistType twist_type;
@@ -188,7 +188,7 @@ void checkLift(){
     
     //check for incorrect posture indicators    
     elevation_type = detector.checkArmElevation(wristAccelX, wristAccelY, wristAccelZ);
-    twist_type = detector.checkImpulse(neckAccelX, neckAccelY, neckAccelZ, wristAccelX, wristAccelY, wristAccelZ);
+    twist_type = detector.checkImpulse(wristAccelX, wristAccelY, wristAccelZ);
     backtilt_type = detector.checkBackTilt(tiltUpperBack, tiltLowerBack);
 
     //if any indicators of incorrect posture are found, trigger warning
@@ -219,21 +219,21 @@ void loop() {
   meanFilterInput(); 
   mapSensors();  
 
+  //console
   //Serial.println(String(neckAccelX) + ", " + String(neckAccelY) + ", " + String(neckAccelZ));
+  //Serial.println(String(wristAccelX) + ", " + String(wristAccelY) + ", " + String(wristAccelZ));
+  //Serial.println(String(tiltUpperBack) + ", " + String(tiltLowerBack));
   //Serial.println(String(leftPressureUpper) + ", " + String(leftPressureLower) + ", " + String(leftPressureFinger) + ", " + String(rightPressureUpper) + ", " + String(rightPressureLower) + ", " + String(rightPressureFinger));
 
-  //checkLift();     
-  //triggerHaptic();
-  //printConsole();
-
-  //tested/calibrated
+  checkLift();     
+  
+  //debug
   //twist_type = detector.checkImpulse(neckAccelX, neckAccelY, neckAccelZ, wristAccelX, wristAccelY, wristAccelZ);
   //elevation_type = detector.checkArmElevation(wristAccelX, wristAccelY, wristAccelZ);
   //backtilt_type = detector.checkBackTilt(tiltUpperBack, tiltLowerBack);
-  load_type = scale.estimateWeight(leftPressureUpper, leftPressureLower, leftPressureFinger, rightPressureUpper, rightPressureLower, rightPressureFinger);
-
-  
-  //printSelect();
+  //load_type = scale.estimateWeight(leftPressureUpper, leftPressureLower, leftPressureFinger, rightPressureUpper, rightPressureLower, rightPressureFinger);
+  //triggerHaptic();
+  //printConsole();
          
   resetBuf(); 
   delay(POLL_DELAY);
@@ -248,14 +248,4 @@ void printConsole(){
   Serial.println(consoleOutput);
   consoleOutput = "";
 }
-
-void printSelect(){  
-  for (int i = 0; i < 6; ++i){
-    consoleOutput += String(buf_avg[i]) + ", ";
-  }
-  //consoleOutput = consoleOutput + String(val_12) + ", " + String(val_13);
-  Serial.println(consoleOutput);
-  consoleOutput = "";
-}
-
 

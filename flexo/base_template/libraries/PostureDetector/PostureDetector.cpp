@@ -62,7 +62,7 @@ ElevationType PostureDetector::checkArmElevation(int wristAccelX, int wristAccel
 }
 
 //makes sure the last 25 acceleration values are within +- 20% of the group's average (no sudden impulses)
-TwistType PostureDetector::checkImpulse(int neckAccelX, int neckAccelY, int neckAccelZ, int wristAccelX, int wristAccelY, int wristAccelZ){
+TwistType PostureDetector::checkImpulse(int wristAccelX, int wristAccelY, int wristAccelZ){
   
   accel_x[accel_index] = wristAccelX;
   accel_y[accel_index] = wristAccelY;

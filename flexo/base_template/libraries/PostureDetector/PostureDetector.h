@@ -11,7 +11,7 @@ class PostureDetector{
   public:
     PostureDetector();
     ElevationType checkArmElevation(int wristAccelX, int wristAccelY, int wristAccelZ);
-    TwistType checkImpulse(int neckAccelX, int neckAccelY, int neckAccelZ, int wristAccelX, int wristAccelY, int wristAccelZ);
+    TwistType checkImpulse(int wristAccelX, int wristAccelY, int wristAccelZ);
     BackTiltType checkBackTilt(int tiltUpperBack, int tiltLowerBack);
     void clearImpulseState();
 
