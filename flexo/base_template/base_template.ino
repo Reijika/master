@@ -80,7 +80,7 @@ void initIO(){
   pinMode(29, INPUT);
   pinMode(30, INPUT);
   pinMode(31, INPUT);  
-  pinMode(14, OUTPUT); //ANALOG OUTPUT
+  pinMode(A14, OUTPUT); //ANALOG OUTPUT
 }
 
 void meanFilterInput(){
@@ -207,12 +207,12 @@ void checkLift(){
 
 void triggerHaptic(){
   //Serial.println("Triggered haptic feedback");
-  analogWrite(14, 255);
+  analogWrite(A14, 4095);
 }
 
 void stopHaptic(){
   //Serial.println("Stopped haptic feedback");
-  analogWrite(14, 0);
+  analogWrite(A14, 0);
 }
 
 void loop() {
