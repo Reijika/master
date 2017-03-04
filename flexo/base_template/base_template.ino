@@ -11,6 +11,13 @@ ElevationType elevation_type;
 TwistType twist_type;
 BackTiltType backtilt_type;
 
+//console output
+String classification = "";
+String w_output = "";
+String e_output = "";
+String t_output = "";
+String b_output = "";
+String lift_dura = "";
 
 //lift timerr
 unsigned long start;
@@ -171,13 +178,16 @@ void checkTime(){
   if ((end - start) >= MAX_LIFT_DURATION){
     triggerHaptic();
   }  
-  Serial.println("Elapsed time (ms): " + String(end-start));
+  //Serial.println("Elapsed time (ms): " + String(end-start));
 }
 
 void checkLift(){
   load_type = scale.estimateWeight(leftPressureUpper, leftPressureLower, leftPressureFinger, rightPressureUpper, rightPressureLower, rightPressureFinger);
     
   if (load_type == LIGHT){
+    elevation_type = UNKNOWN_ELEV;
+    twist_type = NONE;
+    backtilt_type = UNKNOWN_TILT;
     heavy_lift = false;    
     detector.clearImpulseState();
     stopHaptic();    
@@ -199,19 +209,26 @@ void checkLift(){
       stopHaptic();      
     }
   }  else if (load_type == OVERLOAD){
+    elevation_type = UNKNOWN_ELEV;
+    twist_type = NONE;
+    backtilt_type = UNKNOWN_TILT;
     heavy_lift = false;
     detector.clearImpulseState();
     triggerHaptic();
   }  
+
+  printStatus(load_type, elevation_type, twist_type, backtilt_type);
 }
 
 void triggerHaptic(){
-  //Serial.println("Triggered haptic feedback");
+  Serial.println("Triggered haptic feedback");
+  classification = "WARNING";
   analogWrite(A14, 4095);
 }
 
 void stopHaptic(){
-  //Serial.println("Stopped haptic feedback");
+  Serial.println("Stopped haptic feedback");
+  classification = "SAFE   ";
   analogWrite(A14, 0);
 }
 
@@ -225,20 +242,88 @@ void loop() {
   //Serial.println(String(tiltUpperBack) + ", " + String(tiltLowerBack));
   //Serial.println(String(leftPressureUpper) + ", " + String(leftPressureLower) + ", " + String(leftPressureFinger) + ", " + String(rightPressureUpper) + ", " + String(rightPressureLower) + ", " + String(rightPressureFinger));
 
-  checkLift();     
+  //checkLift();     
   
   //debug
   //twist_type = detector.checkImpulse(neckAccelX, neckAccelY, neckAccelZ, wristAccelX, wristAccelY, wristAccelZ);
   //elevation_type = detector.checkArmElevation(wristAccelX, wristAccelY, wristAccelZ);
   //backtilt_type = detector.checkBackTilt(tiltUpperBack, tiltLowerBack);
   //load_type = scale.estimateWeight(leftPressureUpper, leftPressureLower, leftPressureFinger, rightPressureUpper, rightPressureLower, rightPressureFinger);
-  //triggerHaptic();
+
+  triggerHaptic();
+//  delay(100);
+//  stopHaptic();
+//  delay(100);
+
   //printConsole();
          
   resetBuf(); 
   delay(POLL_DELAY);
 }
 
+
+
+void printStatus(LoadType weight, ElevationType elevation, TwistType twist, BackTiltType tilt){
+
+  lift_dura = String(end - start);
+
+  switch(weight){
+    case LIGHT:
+      w_output = "LIGHT   ";
+      break;
+    case HEAVY:
+      w_output = "HEAVY   ";
+      break;
+    case OVERLOAD:
+      w_output = "OVERLOAD";
+      break;
+    default:
+      w_output = "ERROR   ";
+      break;
+  }
+
+  switch(elevation){
+    case LOW_ELEV:
+      e_output = "LOW_ELEV ";
+      break;
+    case MODERATE_ELEV:
+      e_output = "MOD_ELEV ";
+      break;
+    case HIGH_ELEV:
+      e_output = "HIGH_ELEV";
+      break;
+    default:
+      e_output = "ERROR    ";
+      break;
+  }
+
+  switch(twist){
+    case TWIST:
+      t_output = "TWIST ";
+      break;
+    default:
+      t_output = "NONE  ";
+      break;
+  }
+
+  switch(tilt){
+    case STRAIGHT:
+      b_output = "STRAIGHT  ";
+      break;
+    case PARTIALLY_BENT:
+      b_output = "PART_BENT ";
+      break;
+    case FULLY_BENT:
+      b_output = "FULL_BENT ";
+      break;
+    default:
+      b_output = "ERROR     ";
+      break;
+  }
+
+  Serial.println("Weight: " + w_output +" Elevation: " + e_output + " Twist: " + t_output + " Tilt: " + b_output + "  Duration: " + lift_dura + "   Issue:  " + classification);  
+  
+}
 
 void printConsole(){  
   for (int i = 0; i < 12; ++i){
