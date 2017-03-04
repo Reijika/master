@@ -21,20 +21,22 @@ PostureDetector::PostureDetector(){
 //checks the inequalities of the xyz values to determine arm elevation
 ElevationType PostureDetector::checkArmElevation(int wristAccelX, int wristAccelY, int wristAccelZ){
 
+  //Serial.println(String(wristAccelX) + ", " + String(wristAccelY) + ", " + String(wristAccelZ));
+
   //inequalities for right palm up position
   //low      -> x > y > z
   //moderate -> y > x > z
   //high     -> y > z > x
   if (wristAccelX >= wristAccelY && wristAccelY >= wristAccelZ){
-    Serial.println("UP_POS_ELEV: LOW"); 
+    //Serial.println("UP_POS_ELEV: LOW"); 
     return LOW_ELEV;
   }
   else if (wristAccelY >= wristAccelX && wristAccelX >= wristAccelZ){
-    Serial.println("UP_POS_ELEV: MODERATE");
+    //Serial.println("UP_POS_ELEV: MODERATE");
     return MODERATE_ELEV;
   }
   else if (wristAccelY >= wristAccelZ && wristAccelZ >= wristAccelX){
-    Serial.println("UP_POS_ELEV: HIGH");
+    //Serial.println("UP_POS_ELEV: HIGH");
     return HIGH_ELEV;
   }
 
@@ -43,15 +45,15 @@ ElevationType PostureDetector::checkArmElevation(int wristAccelX, int wristAccel
   //moderate -> z > x > y
   //high     -> z > y > x
   else if (wristAccelX >= wristAccelZ && wristAccelZ >= wristAccelY){
-    Serial.println("SIDE_POS_ELEV: LOW");
+    //Serial.println("SIDE_POS_ELEV: LOW");
     return LOW_ELEV;
   }
     else if (wristAccelZ >= wristAccelX && wristAccelX >= wristAccelY){
-    Serial.println("SIDE_POS_ELEV: MODERATE");
+    //Serial.println("SIDE_POS_ELEV: MODERATE");
     return MODERATE_ELEV;
   }
   else if (wristAccelZ >= wristAccelY && wristAccelY >= wristAccelX){
-    Serial.println("SIDE_POS_ELEV: HIGH");
+    //Serial.println("SIDE_POS_ELEV: HIGH");
     return HIGH_ELEV;
   }
 
@@ -71,35 +73,55 @@ TwistType PostureDetector::checkImpulse(int wristAccelX, int wristAccelY, int wr
   accel_index = (accel_index + 1) % ACCELERATION_BUFFER_SIZE;
 
   if (start_index != ACCELERATION_BUFFER_SIZE){
+
     start_index++;
+
+    int value_x = accel_x[start_index-1];
+    int value_y = accel_y[start_index-1];
+    int value_z = accel_z[start_index-1];
+    
+    for (int i = start_index; i < ACCELERATION_BUFFER_SIZE; ++i){
+      accel_x[i] = value_x;
+      accel_y[i] = value_y;
+      accel_z[i] = value_z;
+    }
+    
   }
 
-  for (int i = 0; i < start_index; ++i){
+  for (int i = 0; i < ACCELERATION_BUFFER_SIZE; ++i){
     x_avg += float(accel_x[i]);
     y_avg += float(accel_y[i]);
     z_avg += float(accel_z[i]);
   }
 
-  x_avg = x_avg/float(start_index);
-  y_avg = y_avg/float(start_index);
-  z_avg = z_avg/float(start_index);
+  x_avg = x_avg/float(ACCELERATION_BUFFER_SIZE);
+  y_avg = y_avg/float(ACCELERATION_BUFFER_SIZE);
+  z_avg = z_avg/float(ACCELERATION_BUFFER_SIZE);
 
-  for (int i = 0; i < start_index; ++i){
+  // String contents = "{";
+  // for (int i = 0; i < ACCELERATION_BUFFER_SIZE; ++i){
+  //   contents = contents + String(accel_z[i]) + ", ";
+  // }
+  // contents = contents + "}";
+  // Serial.print(contents + ": ");
+
+
+  for (int i = 0; i < ACCELERATION_BUFFER_SIZE; ++i){
     if(accel_x[i] < (x_avg*(1-ACCELERATION_THRESHOLD)) || accel_x[i] > (x_avg*(1+ACCELERATION_THRESHOLD))){
-      Serial.println("X TWIST");
+      //Serial.println("X TWIST");
       return TWIST;  
     }
     if(accel_y[i] < (y_avg*(1-ACCELERATION_THRESHOLD)) || accel_y[i] > (y_avg*(1+ACCELERATION_THRESHOLD))){
-      Serial.println("Y TWIST"); 
+      //Serial.println("Y TWIST"); 
       return TWIST;             
     }
     if(accel_z[i] < (z_avg*(1-ACCELERATION_THRESHOLD)) || accel_z[i] > (z_avg*(1+ACCELERATION_THRESHOLD))){
-      Serial.println("Z TWIST");
+      //Serial.println("Z TWIST");
       return TWIST;  
     }
   }
-
-  Serial.println("NONE");
+  
+  //Serial.println("NONE");
   return NONE;
 }
 
@@ -126,19 +148,19 @@ BackTiltType PostureDetector::checkBackTilt(int tiltUpperBack, int tiltLowerBack
   lowerTilted = (tiltLowerBack > LOWER_BACK_MEDIAN_THRESHOLD) ? true : false;
 
   if (!upperTilted && !lowerTilted){
-    Serial.println("BACK: STRAIGHT");
+    //Serial.println("BACK: STRAIGHT");
     return STRAIGHT;
   }
   else if (upperTilted && !lowerTilted){
-    Serial.println("BACK: PARTIALLY_BENT");
+    //Serial.println("BACK: PARTIALLY_BENT");
     return PARTIALLY_BENT;
   }
   else if (upperTilted && lowerTilted){
-    Serial.println("BACK: FULLY_BENT");    
+    //Serial.println("BACK: FULLY_BENT");    
     return FULLY_BENT;
   }
   else{
-    Serial.println("How did you bend your lower back before your upper back?");
+    //Serial.println("How did you bend your lower back before your upper back?");
     return UNKNOWN_TILT;
   }
   

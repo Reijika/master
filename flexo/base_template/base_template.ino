@@ -87,7 +87,8 @@ void initIO(){
   pinMode(29, INPUT);
   pinMode(30, INPUT);
   pinMode(31, INPUT);  
-  pinMode(A14, OUTPUT); //ANALOG OUTPUT
+  //pinMode(A14, OUTPUT); //ANALOG OUTPUT
+  pinMode(13, OUTPUT);
 }
 
 void meanFilterInput(){
@@ -221,15 +222,17 @@ void checkLift(){
 }
 
 void triggerHaptic(){
-  Serial.println("Triggered haptic feedback");
+  //Serial.println("Triggered haptic feedback");
   classification = "WARNING";
-  analogWrite(A14, 4095);
+  digitalWrite(13, HIGH);
+  //analogWrite(A14, 4095);
 }
 
 void stopHaptic(){
-  Serial.println("Stopped haptic feedback");
+  //Serial.println("Stopped haptic feedback");
   classification = "SAFE   ";
-  analogWrite(A14, 0);
+  digitalWrite(13, LOW);
+  //analogWrite(A14, 0);
 }
 
 void loop() {
@@ -242,24 +245,20 @@ void loop() {
   //Serial.println(String(tiltUpperBack) + ", " + String(tiltLowerBack));
   //Serial.println(String(leftPressureUpper) + ", " + String(leftPressureLower) + ", " + String(leftPressureFinger) + ", " + String(rightPressureUpper) + ", " + String(rightPressureLower) + ", " + String(rightPressureFinger));
 
-  //checkLift();     
+  checkLift();     
   
   //debug
-  //twist_type = detector.checkImpulse(neckAccelX, neckAccelY, neckAccelZ, wristAccelX, wristAccelY, wristAccelZ);
+  //twist_type = detector.checkImpulse(wristAccelX, wristAccelY, wristAccelZ);
   //elevation_type = detector.checkArmElevation(wristAccelX, wristAccelY, wristAccelZ);
   //backtilt_type = detector.checkBackTilt(tiltUpperBack, tiltLowerBack);
   //load_type = scale.estimateWeight(leftPressureUpper, leftPressureLower, leftPressureFinger, rightPressureUpper, rightPressureLower, rightPressureFinger);
 
-  triggerHaptic();
-//  delay(100);
-//  stopHaptic();
-//  delay(100);
-
+  //triggerHaptic();
   //printConsole();
          
   resetBuf(); 
   delay(POLL_DELAY);
-}
+} 
 
 
 
@@ -321,7 +320,7 @@ void printStatus(LoadType weight, ElevationType elevation, TwistType twist, Back
       break;
   }
 
-  Serial.println("Weight: " + w_output +" Elevation: " + e_output + " Twist: " + t_output + " Tilt: " + b_output + "  Duration: " + lift_dura + "   Issue:  " + classification);  
+  Serial.println("W: " + w_output +"  E: " + e_output + "   T: " + t_output + "  B: " + b_output + "  Duration: " + lift_dura + "   Issue:  " + classification);  
   
 }
 

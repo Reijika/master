@@ -21,11 +21,11 @@ class PostureDetector{
     bool upperTilted;
     bool lowerTilted;    
 
-    const float ACCELERATION_THRESHOLD = 0.25; //sensitivity of twist detection
-    const int ACCELERATION_BUFFER_SIZE = 20; //affects the lenght of twists
-    int accel_x [20];
-    int accel_y [20];
-    int accel_z [20];
+    const float ACCELERATION_THRESHOLD = 0.20; //sensitivity of twist detection
+    const int ACCELERATION_BUFFER_SIZE = 10; //affects the lenght of twists
+    int accel_x [10];
+    int accel_y [10];
+    int accel_z [10];
     float x_avg;
     float y_avg;
     float z_avg;
