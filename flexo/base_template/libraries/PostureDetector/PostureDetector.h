@@ -32,6 +32,10 @@ class PostureDetector{
     int start_index;
     int accel_index;
 
+    int value_x;
+    int value_y;
+    int value_z;
+
 };
 
 #endif

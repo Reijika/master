@@ -1,6 +1,8 @@
 #include "Arduino.h"
 #include "PostureDetector.h"
 
+#define Sprintln(a) //(Serial.println(a))
+
 PostureDetector::PostureDetector(){
   upperTilted = false;
   lowerTilted = false;
@@ -10,6 +12,10 @@ PostureDetector::PostureDetector(){
   x_avg = 0.0f;
   y_avg = 0.0f;
   z_avg = 0.0f;
+
+  value_x = 0;
+  value_y = 0;
+  value_z = 0;
 
   for (int i = 0; i < ACCELERATION_BUFFER_SIZE; ++i){
     accel_x[i] = 0;
@@ -28,14 +34,17 @@ ElevationType PostureDetector::checkArmElevation(int wristAccelX, int wristAccel
   //moderate -> y > x > z
   //high     -> y > z > x
   if (wristAccelX >= wristAccelY && wristAccelY >= wristAccelZ){
+    Sprintln(F("UP_POS_ELEV: LOW"));
     //Serial.println("UP_POS_ELEV: LOW"); 
     return LOW_ELEV;
   }
   else if (wristAccelY >= wristAccelX && wristAccelX >= wristAccelZ){
+    Sprintln(F("UP_POS_ELEV: MODERATE"));
     //Serial.println("UP_POS_ELEV: MODERATE");
     return MODERATE_ELEV;
   }
   else if (wristAccelY >= wristAccelZ && wristAccelZ >= wristAccelX){
+    Sprintln(F("UP_POS_ELEV: HIGH"));
     //Serial.println("UP_POS_ELEV: HIGH");
     return HIGH_ELEV;
   }
@@ -45,19 +54,23 @@ ElevationType PostureDetector::checkArmElevation(int wristAccelX, int wristAccel
   //moderate -> z > x > y
   //high     -> z > y > x
   else if (wristAccelX >= wristAccelZ && wristAccelZ >= wristAccelY){
+    Sprintln(F("SIDE_POS_ELEV: LOW"));
     //Serial.println("SIDE_POS_ELEV: LOW");
     return LOW_ELEV;
   }
     else if (wristAccelZ >= wristAccelX && wristAccelX >= wristAccelY){
+    Sprintln(F("SIDE_POS_ELEV: MODERATE"));
     //Serial.println("SIDE_POS_ELEV: MODERATE");
     return MODERATE_ELEV;
   }
   else if (wristAccelZ >= wristAccelY && wristAccelY >= wristAccelX){
+    Sprintln(F("SIDE_POS_ELEV: HIGH"));
     //Serial.println("SIDE_POS_ELEV: HIGH");
     return HIGH_ELEV;
   }
 
   else {
+    Sprintln(F("ELEVATION: ERROR"));
     //Serial.println("Don't flail your arms around when lifting.");
     return UNKNOWN_ELEV;
   }
@@ -73,19 +86,16 @@ TwistType PostureDetector::checkImpulse(int wristAccelX, int wristAccelY, int wr
   accel_index = (accel_index + 1) % ACCELERATION_BUFFER_SIZE;
 
   if (start_index != ACCELERATION_BUFFER_SIZE){
-
     start_index++;
-
-    int value_x = accel_x[start_index-1];
-    int value_y = accel_y[start_index-1];
-    int value_z = accel_z[start_index-1];
+    value_x = accel_x[start_index-1];
+    value_y = accel_y[start_index-1];
+    value_z = accel_z[start_index-1];
     
     for (int i = start_index; i < ACCELERATION_BUFFER_SIZE; ++i){
       accel_x[i] = value_x;
       accel_y[i] = value_y;
       accel_z[i] = value_z;
-    }
-    
+    }    
   }
 
   for (int i = 0; i < ACCELERATION_BUFFER_SIZE; ++i){
@@ -98,29 +108,26 @@ TwistType PostureDetector::checkImpulse(int wristAccelX, int wristAccelY, int wr
   y_avg = y_avg/float(ACCELERATION_BUFFER_SIZE);
   z_avg = z_avg/float(ACCELERATION_BUFFER_SIZE);
 
-  // String contents = "{";
-  // for (int i = 0; i < ACCELERATION_BUFFER_SIZE; ++i){
-  //   contents = contents + String(accel_z[i]) + ", ";
-  // }
-  // contents = contents + "}";
-  // Serial.print(contents + ": ");
-
 
   for (int i = 0; i < ACCELERATION_BUFFER_SIZE; ++i){
     if(accel_x[i] < (x_avg*(1-ACCELERATION_THRESHOLD)) || accel_x[i] > (x_avg*(1+ACCELERATION_THRESHOLD))){
+      Sprintln(F("X TWIST"));
       //Serial.println("X TWIST");
       return TWIST;  
     }
     if(accel_y[i] < (y_avg*(1-ACCELERATION_THRESHOLD)) || accel_y[i] > (y_avg*(1+ACCELERATION_THRESHOLD))){
+      Sprintln(F("Y TWIST"));
       //Serial.println("Y TWIST"); 
       return TWIST;             
     }
     if(accel_z[i] < (z_avg*(1-ACCELERATION_THRESHOLD)) || accel_z[i] > (z_avg*(1+ACCELERATION_THRESHOLD))){
+      Sprintln(F("Z TWIST"));
       //Serial.println("Z TWIST");
       return TWIST;  
     }
   }
   
+  Sprintln(F("NONE"));
   //Serial.println("NONE");
   return NONE;
 }
@@ -148,18 +155,22 @@ BackTiltType PostureDetector::checkBackTilt(int tiltUpperBack, int tiltLowerBack
   lowerTilted = (tiltLowerBack > LOWER_BACK_MEDIAN_THRESHOLD) ? true : false;
 
   if (!upperTilted && !lowerTilted){
+    Sprintln(F("BACK: STRAIGHT"));
     //Serial.println("BACK: STRAIGHT");
     return STRAIGHT;
   }
   else if (upperTilted && !lowerTilted){
+    Sprintln(F("BACK: PARTIALLY_BENT"));
     //Serial.println("BACK: PARTIALLY_BENT");
     return PARTIALLY_BENT;
   }
   else if (upperTilted && lowerTilted){
+    Sprintln(F("BACK: FULLY_BENT"));
     //Serial.println("BACK: FULLY_BENT");    
     return FULLY_BENT;
   }
   else{
+    Sprintln(F("BACK: ERROR"));
     //Serial.println("How did you bend your lower back before your upper back?");
     return UNKNOWN_TILT;
   }

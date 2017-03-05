@@ -258,12 +258,9 @@ void loop() {
          
   resetBuf(); 
   delay(POLL_DELAY);
-} 
-
-
+}
 
 void printStatus(LoadType weight, ElevationType elevation, TwistType twist, BackTiltType tilt){
-
   lift_dura = String(end - start);
 
   switch(weight){
@@ -278,7 +275,6 @@ void printStatus(LoadType weight, ElevationType elevation, TwistType twist, Back
       break;
     default:
       w_output = "ERROR   ";
-      break;
   }
 
   switch(elevation){
@@ -293,7 +289,6 @@ void printStatus(LoadType weight, ElevationType elevation, TwistType twist, Back
       break;
     default:
       e_output = "ERROR    ";
-      break;
   }
 
   switch(twist){
@@ -302,7 +297,6 @@ void printStatus(LoadType weight, ElevationType elevation, TwistType twist, Back
       break;
     default:
       t_output = "NONE  ";
-      break;
   }
 
   switch(tilt){
@@ -317,11 +311,8 @@ void printStatus(LoadType weight, ElevationType elevation, TwistType twist, Back
       break;
     default:
       b_output = "ERROR     ";
-      break;
   }
-
   Serial.println("W: " + w_output +"  E: " + e_output + "   T: " + t_output + "  B: " + b_output + "  Duration: " + lift_dura + "   Issue:  " + classification);  
-  
 }
 
 void printConsole(){  
