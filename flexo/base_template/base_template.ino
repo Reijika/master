@@ -169,7 +169,7 @@ void mapSensors(){
 }
 
 
-void checkTime(){
+bool checkTime(){
   if (!heavy_lift){
     heavy_lift = true;
     start = millis();
@@ -177,8 +177,10 @@ void checkTime(){
   end = millis();
   
   if ((end - start) >= MAX_LIFT_DURATION){
-    triggerHaptic();
+    //triggerHaptic();
+    return true;
   }  
+  return false;
   //Serial.println("Elapsed time (ms): " + String(end-start));
 }
 
@@ -194,21 +196,20 @@ void checkLift(){
     stopHaptic();    
   }
   else if (load_type == HEAVY){
-    //check lift duration
-    checkTime();    
-    
-    //check for incorrect posture indicators    
+    //check lift duration and check for incorrect posture indicators    
     elevation_type = detector.checkArmElevation(wristAccelX, wristAccelY, wristAccelZ);
     twist_type = detector.checkImpulse(wristAccelX, wristAccelY, wristAccelZ);
     backtilt_type = detector.checkBackTilt(tiltUpperBack, tiltLowerBack);
 
     //if any indicators of incorrect posture are found, trigger warning
-    if((elevation_type == HIGH_ELEV) || (twist_type == TWIST) || (backtilt_type == FULLY_BENT)){
+    if((elevation_type == HIGH_ELEV) || (twist_type == TWIST) || (backtilt_type == FULLY_BENT) || checkTime()){
       triggerHaptic();
     }
     else{
       stopHaptic();      
-    }
+    }      
+    
+
   }  else if (load_type == OVERLOAD){
     elevation_type = UNKNOWN_ELEV;
     twist_type = NONE;
