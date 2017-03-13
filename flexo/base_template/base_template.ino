@@ -25,6 +25,10 @@ unsigned long end;
 bool heavy_lift = false;  //used by checkTime to check if a lift attempt has started
 const int MAX_LIFT_DURATION = 60000;
 
+//detection delay
+unsigned long d_start;
+unsigned long d_end;
+
 //buffer constants
 const int BUF_SIZE = 5;
 const int POLL_DELAY = 50;
@@ -186,7 +190,7 @@ bool checkTime(){
 
 void checkLift(){
   load_type = scale.estimateWeight(leftPressureUpper, leftPressureLower, leftPressureFinger, rightPressureUpper, rightPressureLower, rightPressureFinger);
-    
+   
   if (load_type == LIGHT){
     elevation_type = UNKNOWN_ELEV;
     twist_type = NONE;
@@ -204,11 +208,12 @@ void checkLift(){
     //if any indicators of incorrect posture are found, trigger warning
     if((elevation_type == HIGH_ELEV) || (twist_type == TWIST) || (backtilt_type == FULLY_BENT) || checkTime()){
       triggerHaptic();
+      d_end = millis();      
+      Serial.print("Delay: " + String(d_end - d_start) + "    ");
     }
-    else{
-      stopHaptic();      
-    }      
-    
+    else{      
+      stopHaptic();
+    }
 
   }  else if (load_type == OVERLOAD){
     elevation_type = UNKNOWN_ELEV;
@@ -237,6 +242,8 @@ void stopHaptic(){
 }
 
 void loop() {
+  d_start = millis();
+  
   meanFilterInput(); 
   mapSensors();  
 
@@ -253,9 +260,12 @@ void loop() {
   //elevation_type = detector.checkArmElevation(wristAccelX, wristAccelY, wristAccelZ);
   //backtilt_type = detector.checkBackTilt(tiltUpperBack, tiltLowerBack);
   //load_type = scale.estimateWeight(leftPressureUpper, leftPressureLower, leftPressureFinger, rightPressureUpper, rightPressureLower, rightPressureFinger);
-
   //triggerHaptic();
   //printConsole();
+
+  //reset delay timers
+  d_start = 0;
+  d_end = 0;
          
   resetBuf(); 
   delay(POLL_DELAY);
