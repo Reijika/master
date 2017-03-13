@@ -23,7 +23,7 @@ String lift_dura = "";
 unsigned long start;
 unsigned long end;
 bool heavy_lift = false;  //used by checkTime to check if a lift attempt has started
-const int MAX_LIFT_DURATION = 60000;
+const int MAX_LIFT_DURATION = 30000;
 
 //detection delay
 unsigned long d_start;
@@ -92,7 +92,7 @@ void initIO(){
   pinMode(30, INPUT);
   pinMode(31, INPUT);  
   //pinMode(A14, OUTPUT); //ANALOG OUTPUT
-  pinMode(13, OUTPUT);
+  pinMode(9, OUTPUT);
 }
 
 void meanFilterInput(){
@@ -165,8 +165,8 @@ void mapSensors(){
   neckAccelX          = buf_avg[6];   //accel_1_x
   neckAccelY          = buf_avg[7];   //accel_1_y
   neckAccelZ          = buf_avg[8];   //accel_1_z
-  wristAccelX         = buf_avg[9];   //accel_2_x
-  wristAccelY         = buf_avg[10];  //accel_2_y
+  wristAccelY         = buf_avg[9];   //accel_2_x
+  wristAccelX         = buf_avg[10];  //accel_2_y
   wristAccelZ         = buf_avg[11];  //accel_2_z
   tiltUpperBack       = val_12;       //tilt_short
   tiltLowerBack       = val_13;       //tilt_tall
@@ -209,7 +209,7 @@ void checkLift(){
     if((elevation_type == HIGH_ELEV) || (twist_type == TWIST) || (backtilt_type == FULLY_BENT) || checkTime()){
       triggerHaptic();
       d_end = millis();      
-      Serial.print("Delay: " + String(d_end - d_start) + "    ");
+      //Serial.print("Delay: " + String(d_end - d_start) + "    ");
     }
     else{      
       stopHaptic();
@@ -230,25 +230,27 @@ void checkLift(){
 void triggerHaptic(){
   //Serial.println("Triggered haptic feedback");
   classification = "WARNING";
-  digitalWrite(13, HIGH);
-  //analogWrite(A14, 4095);
+  //digitalWrite(13, HIGH);
+  analogWrite(9, 4095);
 }
 
 void stopHaptic(){
   //Serial.println("Stopped haptic feedback");
   classification = "SAFE   ";
-  digitalWrite(13, LOW);
-  //analogWrite(A14, 0);
+  //digitalWrite(13, LOW);
+  analogWrite(9, 0);
 }
 
 void loop() {
   d_start = millis();
-  
+ 
   meanFilterInput(); 
   mapSensors();  
 
   //console
   //Serial.println(String(neckAccelX) + ", " + String(neckAccelY) + ", " + String(neckAccelZ));
+  //Serial.print(String(0) + ", ");
+  //Serial.print(String(1000) + ", ");
   //Serial.println(String(wristAccelX) + ", " + String(wristAccelY) + ", " + String(wristAccelZ));
   //Serial.println(String(tiltUpperBack) + ", " + String(tiltLowerBack));
   //Serial.println(String(leftPressureUpper) + ", " + String(leftPressureLower) + ", " + String(leftPressureFinger) + ", " + String(rightPressureUpper) + ", " + String(rightPressureLower) + ", " + String(rightPressureFinger));
