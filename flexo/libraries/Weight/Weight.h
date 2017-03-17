@@ -12,7 +12,11 @@ class Weight{
   private:
     const double WEIGHT_LOW_THRESHOLD = 10.0;
     const double WEIGHT_HIGH_THRESHOLD = 50.0;
+    const int WEIGHT_BUFFER_SIZE = 10;
     double estimate;
+    double avg;
+    int weight_index;
+    int weights [10];
 };
 
 #endif
