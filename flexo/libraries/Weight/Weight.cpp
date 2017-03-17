@@ -11,6 +11,9 @@ Weight::Weight(){
 
 LoadType Weight::estimateWeight(int leftPressureUpper, int leftPressureLower, int leftPressureFinger, int rightPressureUpper, int rightPressureLower, int rightPressureFinger){
   
+  leftPressureFinger = (leftPressureFinger < 20) ? 0 : leftPressureFinger;
+  rightPressureFinger = (rightPressureFinger < 20) ? 0 : rightPressureFinger;
+
   //multivariable regression model based on experimental data for different lift cases
   estimate = (0.0965501*double(leftPressureUpper)) + (0.2870269*double(leftPressureLower)) + (0.1668634*double(leftPressureFinger)) + (0.0776616*double(rightPressureUpper)) + (0.2805082*double(rightPressureLower)) + (0.1465539*double(rightPressureFinger)) + 1.4096351;    
   
