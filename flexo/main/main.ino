@@ -90,8 +90,7 @@ void initIO(){
   pinMode(28, INPUT);
   pinMode(29, INPUT);
   pinMode(30, INPUT);
-  pinMode(31, INPUT);  
-  //pinMode(A14, OUTPUT); //ANALOG OUTPUT
+  pinMode(31, INPUT);    
   pinMode(9, OUTPUT);
 }
 
@@ -184,8 +183,7 @@ bool checkTime(){
     //triggerHaptic();
     return true;
   }  
-  return false;
-  //Serial.println("Elapsed time (ms): " + String(end-start));
+  return false;  
 }
 
 void checkLift(){
@@ -197,6 +195,7 @@ void checkLift(){
     backtilt_type = UNKNOWN_TILT;
     heavy_lift = false;    
     detector.clearImpulseState();
+    detector.clearBackTiltState();
     stopHaptic();    
   }
   else if (load_type == HEAVY){
@@ -207,9 +206,7 @@ void checkLift(){
 
     //if any indicators of incorrect posture are found, trigger warning
     if((elevation_type == HIGH_ELEV) || (twist_type == TWIST) || (backtilt_type == FULLY_BENT) || checkTime()){
-      triggerHaptic();
-      d_end = millis();      
-      //Serial.print("Delay: " + String(d_end - d_start) + "    ");
+      triggerHaptic();      
     }
     else{      
       stopHaptic();
@@ -221,6 +218,7 @@ void checkLift(){
     backtilt_type = UNKNOWN_TILT;
     heavy_lift = false;
     detector.clearImpulseState();
+    detector.clearBackTiltState();
     triggerHaptic();
   }  
 
@@ -228,22 +226,16 @@ void checkLift(){
 }
 
 void triggerHaptic(){
-  //Serial.println("Triggered haptic feedback");
   classification = "WARNING";
-  //digitalWrite(13, HIGH);
   analogWrite(9, 4095);
 }
 
 void stopHaptic(){
-  //Serial.println("Stopped haptic feedback");
   classification = "SAFE   ";
-  //digitalWrite(13, LOW);
   analogWrite(9, 0);
 }
 
 void loop() {
-  d_start = millis();
- 
   meanFilterInput(); 
   mapSensors();  
 
@@ -264,10 +256,6 @@ void loop() {
   //load_type = scale.estimateWeight(leftPressureUpper, leftPressureLower, leftPressureFinger, rightPressureUpper, rightPressureLower, rightPressureFinger);
   //triggerHaptic();
   //printConsole();
-
-  //reset delay timers
-  d_start = 0;
-  d_end = 0;
          
   resetBuf(); 
   delay(POLL_DELAY);
@@ -287,21 +275,21 @@ void printStatus(LoadType weight, ElevationType elevation, TwistType twist, Back
       w_output = "OVERLOAD";
       break;
     default:
-      w_output = "ERROR   ";
+      w_output = "UNKNOWN ";
   }
 
   switch(elevation){
     case LOW_ELEV:
-      e_output = "LOW_ELEV ";
+      e_output = "LOW    ";
       break;
     case MODERATE_ELEV:
-      e_output = "MOD_ELEV ";
+      e_output = "MOD    ";
       break;
     case HIGH_ELEV:
-      e_output = "HIGH_ELEV";
+      e_output = "HIGH   ";
       break;
     default:
-      e_output = "ERROR    ";
+      e_output = "UNKNOWN";
   }
 
   switch(twist){
@@ -314,18 +302,18 @@ void printStatus(LoadType weight, ElevationType elevation, TwistType twist, Back
 
   switch(tilt){
     case STRAIGHT:
-      b_output = "STRAIGHT  ";
+      b_output = "STRAIGHT ";
       break;
     case PARTIALLY_BENT:
-      b_output = "PART_BENT ";
+      b_output = "PARTIAL  ";
       break;
     case FULLY_BENT:
-      b_output = "FULL_BENT ";
+      b_output = "FULL     ";
       break;
     default:
-      b_output = "ERROR     ";
+      b_output = "UNKNOWN  ";
   }
-  Serial.println("W: " + w_output +"  E: " + e_output + "   T: " + t_output + "  B: " + b_output + "  Duration: " + lift_dura + "   Issue:  " + classification);  
+  Serial.println("LOAD: " + w_output +"   ELEV: " + e_output + "   TWIST: " + t_output + "  BACK: " + b_output + "  DURATION: " + lift_dura + "   DECISION:  " + classification);  
 }
 
 void printConsole(){  

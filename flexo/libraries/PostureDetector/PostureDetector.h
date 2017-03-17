@@ -14,6 +14,7 @@ class PostureDetector{
     TwistType checkImpulse(int wristAccelX, int wristAccelY, int wristAccelZ);
     BackTiltType checkBackTilt(int tiltUpperBack, int tiltLowerBack);
     void clearImpulseState();
+    void clearBackTiltState();
 
   private:
     const int UPPER_BACK_MEDIAN_THRESHOLD = 300; // range - 30-550
@@ -21,21 +22,28 @@ class PostureDetector{
     bool upperTilted;
     bool lowerTilted;    
 
-    const float ACCELERATION_THRESHOLD = 0.20; //sensitivity of twist detection
-    const int ACCELERATION_BUFFER_SIZE = 10; //affects the lenght of twists
+    const float ACCELERATION_THRESHOLD = 0.15; //sensitivity of twist detection
+    const int ACCELERATION_BUFFER_SIZE = 10;   //affects the length of twists
     int accel_x [10];
     int accel_y [10];
     int accel_z [10];
     float x_avg;
     float y_avg;
-    float z_avg;
-    int start_index;
-    int accel_index;
-
+    float z_avg;    
     int value_x;
     int value_y;
     int value_z;
-
+    int start_index;
+    int accel_index;
+    
+    const int TILT_BUFFER_SIZE = 10;
+    int tilt_buffer [10];
+    int tilt_count[4];  
+    int tilt_index;
+    int tilt_start_index;
+    int tilt_value;        
+    int tilt_max;
+    int tilt_decision;
 };
 
 #endif

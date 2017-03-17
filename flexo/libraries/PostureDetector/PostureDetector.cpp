@@ -17,6 +17,12 @@ PostureDetector::PostureDetector(){
   value_y = 0;
   value_z = 0;
 
+  tilt_index = 0;
+  tilt_start_index = 0;
+  tilt_value = 0;
+  tilt_max = 0;
+  tilt_decision = 0;
+
   for (int i = 0; i < ACCELERATION_BUFFER_SIZE; ++i){
     accel_x[i] = 0;
     accel_y[i] = 0;
@@ -27,25 +33,20 @@ PostureDetector::PostureDetector(){
 //checks the inequalities of the xyz values to determine arm elevation
 ElevationType PostureDetector::checkArmElevation(int wristAccelX, int wristAccelY, int wristAccelZ){
 
-  //Serial.println(String(wristAccelX) + ", " + String(wristAccelY) + ", " + String(wristAccelZ));
-
   //inequalities for right palm up position
   //low      -> x > y > z
   //moderate -> y > x > z
   //high     -> y > z > x
   if (wristAccelX >= wristAccelY && wristAccelY >= wristAccelZ){
     Sprintln(F("UP_POS_ELEV: LOW"));
-    //Serial.println("UP_POS_ELEV: LOW"); 
     return LOW_ELEV;
   }
   else if (wristAccelY >= wristAccelX && wristAccelX >= wristAccelZ){
     Sprintln(F("UP_POS_ELEV: MODERATE"));
-    //Serial.println("UP_POS_ELEV: MODERATE");
     return MODERATE_ELEV;
   }
   else if (wristAccelY >= wristAccelZ && wristAccelZ >= wristAccelX){
     Sprintln(F("UP_POS_ELEV: HIGH"));
-    //Serial.println("UP_POS_ELEV: HIGH");
     return HIGH_ELEV;
   }
 
@@ -55,23 +56,19 @@ ElevationType PostureDetector::checkArmElevation(int wristAccelX, int wristAccel
   //high     -> z > y > x
   else if (wristAccelX >= wristAccelZ && wristAccelZ >= wristAccelY){
     Sprintln(F("SIDE_POS_ELEV: LOW"));
-    //Serial.println("SIDE_POS_ELEV: LOW");
     return LOW_ELEV;
   }
     else if (wristAccelZ >= wristAccelX && wristAccelX >= wristAccelY){
     Sprintln(F("SIDE_POS_ELEV: MODERATE"));
-    //Serial.println("SIDE_POS_ELEV: MODERATE");
     return MODERATE_ELEV;
   }
   else if (wristAccelZ >= wristAccelY && wristAccelY >= wristAccelX){
     Sprintln(F("SIDE_POS_ELEV: HIGH"));
-    //Serial.println("SIDE_POS_ELEV: HIGH");
     return HIGH_ELEV;
   }
 
   else {
     Sprintln(F("ELEVATION: ERROR"));
-    //Serial.println("Don't flail your arms around when lifting.");
     return UNKNOWN_ELEV;
   }
 }
@@ -112,23 +109,19 @@ TwistType PostureDetector::checkImpulse(int wristAccelX, int wristAccelY, int wr
   for (int i = 0; i < ACCELERATION_BUFFER_SIZE; ++i){
     if(accel_x[i] < (x_avg*(1-ACCELERATION_THRESHOLD)) || accel_x[i] > (x_avg*(1+ACCELERATION_THRESHOLD))){
       Sprintln(F("X TWIST"));
-      //Serial.println("X TWIST");
       return TWIST;  
     }
     if(accel_y[i] < (y_avg*(1-ACCELERATION_THRESHOLD)) || accel_y[i] > (y_avg*(1+ACCELERATION_THRESHOLD))){
       Sprintln(F("Y TWIST"));
-      //Serial.println("Y TWIST"); 
       return TWIST;             
     }
     if(accel_z[i] < (z_avg*(1-ACCELERATION_THRESHOLD)) || accel_z[i] > (z_avg*(1+ACCELERATION_THRESHOLD))){
       Sprintln(F("Z TWIST"));
-      //Serial.println("Z TWIST");
       return TWIST;  
     }
   }
   
   Sprintln(F("NONE"));
-  //Serial.println("NONE");
   return NONE;
 }
 
@@ -149,30 +142,89 @@ void PostureDetector::clearImpulseState(){
 //checks which of the tilt sensors are active
 BackTiltType PostureDetector::checkBackTilt(int tiltUpperBack, int tiltLowerBack){
 
-  //Serial.println(String(tiltUpperBack) + ", " + String(tiltLowerBack));
-
   upperTilted = (tiltUpperBack > UPPER_BACK_MEDIAN_THRESHOLD) ? true : false;
   lowerTilted = (tiltLowerBack > LOWER_BACK_MEDIAN_THRESHOLD) ? true : false;
 
-  if (!upperTilted && !lowerTilted){
-    Sprintln(F("BACK: STRAIGHT"));
-    //Serial.println("BACK: STRAIGHT");
-    return STRAIGHT;
+  //record the classification in the buffer
+  if (!upperTilted && !lowerTilted){    
+    tilt_buffer[tilt_index] = 0;
   }
-  else if (upperTilted && !lowerTilted){
-    Sprintln(F("BACK: PARTIALLY_BENT"));
-    //Serial.println("BACK: PARTIALLY_BENT");
-    return PARTIALLY_BENT;
+  else if (upperTilted && !lowerTilted){    
+    tilt_buffer[tilt_index] = 1;        
   }
-  else if (upperTilted && lowerTilted){
-    Sprintln(F("BACK: FULLY_BENT"));
-    //Serial.println("BACK: FULLY_BENT");    
-    return FULLY_BENT;
+  else if (upperTilted && lowerTilted){    
+    tilt_buffer[tilt_index] = 2;
   }
-  else{
-    Sprintln(F("BACK: ERROR"));
-    //Serial.println("How did you bend your lower back before your upper back?");
-    return UNKNOWN_TILT;
+  else{    
+    tilt_buffer[tilt_index] = 3;
+  }
+
+  tilt_index = (tilt_index + 1) % TILT_BUFFER_SIZE; //update the buffer index
+
+  //handles the initial buffer load
+  if (tilt_start_index != TILT_BUFFER_SIZE){
+    tilt_start_index++;
+    tilt_value = tilt_buffer[tilt_start_index - 1];        
+    for (int i = tilt_start_index; i < TILT_BUFFER_SIZE; ++i){
+      tilt_buffer[i] = tilt_value;      
+    }    
+  }
+
+  //counts the occurrence of each classification currently in the buffer
+  for (int i = 0; i < TILT_BUFFER_SIZE; ++i){
+    switch(tilt_buffer[i]){
+      case 0:
+        tilt_count[0] = tilt_count[0] + 1;
+        break;
+      case 1:
+        tilt_count[1] = tilt_count[1] + 1;
+        break;
+      case 2:
+        tilt_count[2] = tilt_count[2] + 1;
+        break;
+      default:
+        tilt_count[3] = tilt_count[3] + 1;
+        break;
+    }
+  }
+
+  //determine which classification has the highest frequency
+  for (int i = 0; i < 4; ++i){
+    if (tilt_count[i] > tilt_max){
+      tilt_decision = i;
+    }
+  }
+
+  //reset variables for each call
+  for (int i = 0; i < 4; ++i){
+    tilt_count[i] = 0;
+  }
+  tilt_max = 0;
+
+  //return the most frequent classification
+  switch(tilt_decision){
+    case 0:
+      Sprintln(F("BACK: STRAIGHT"));  
+      return STRAIGHT;      
+    case 1:
+      Sprintln(F("BACK: PARTIALLY_BENT"));  
+      return PARTIALLY_BENT;
+    case 2:
+      Sprintln(F("BACK: FULLY_BENT"));  
+      return FULLY_BENT;      
+    default:
+      Sprintln(F("BACK: ERROR"));  
+      return UNKNOWN_TILT;
   }
   
+}
+
+//call this to clear state whenever the lift attempt finishes or is interrupted
+void PostureDetector::clearBackTiltState(){
+  for (int i = 0; i < TILT_BUFFER_SIZE; ++i){
+    tilt_buffer[i] = 0;
+  }
+  
+  tilt_index = 0;
+  tilt_start_index = 0;  
 }

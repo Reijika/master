@@ -32,22 +32,19 @@ LoadType Weight::estimateWeight(int leftPressureUpper, int leftPressureLower, in
   estimate = avg;
   avg = 0.0;
 
-  Serial.print("Est: " + String(estimate) + "      ");
+  Serial.print("WEIGHT: " + String(estimate) + "    ");
 
   //translate estimated weight into a classification
   if (estimate >= 0.0 && estimate < WEIGHT_LOW_THRESHOLD){
     Sprintln(F("LOAD_TYPE: LIGHT"));
-    //Serial.println("LOAD TYPE: LIGHT");
     return LIGHT;
   }
   else if (estimate >= WEIGHT_LOW_THRESHOLD && estimate < WEIGHT_HIGH_THRESHOLD){
     Sprintln(F("LOAD_TYPE: HEAVY"));
-    //Serial.println("LOAD TYPE: HEAVY");
     return HEAVY;
   }
   else if (estimate >= WEIGHT_HIGH_THRESHOLD){
     Sprintln(F("LOAD_TYPE: OVERLOAD"));
-    //Serial.println("LOAD TYPE: OVERLOAD");
     return OVERLOAD;
   }
 
