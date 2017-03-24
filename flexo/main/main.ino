@@ -194,8 +194,7 @@ void checkLift(){
     twist_type = NONE;
     backtilt_type = UNKNOWN_TILT;
     heavy_lift = false;    
-    detector.clearImpulseState();
-    detector.clearBackTiltState();
+    detector.clearImpulseState();    
     stopHaptic();    
   }
   else if (load_type == HEAVY){
@@ -217,8 +216,7 @@ void checkLift(){
     twist_type = NONE;
     backtilt_type = UNKNOWN_TILT;
     heavy_lift = false;
-    detector.clearImpulseState();
-    detector.clearBackTiltState();
+    detector.clearImpulseState();    
     triggerHaptic();
   }  
 

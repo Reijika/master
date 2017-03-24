@@ -17,12 +17,6 @@ PostureDetector::PostureDetector(){
   value_y = 0;
   value_z = 0;
 
-  tilt_index = 0;
-  tilt_start_index = 0;
-  tilt_value = 0;
-  tilt_max = 0;
-  tilt_decision = 0;
-
   for (int i = 0; i < ACCELERATION_BUFFER_SIZE; ++i){
     accel_x[i] = 0;
     accel_y[i] = 0;
@@ -145,86 +139,21 @@ BackTiltType PostureDetector::checkBackTilt(int tiltUpperBack, int tiltLowerBack
   upperTilted = (tiltUpperBack > UPPER_BACK_MEDIAN_THRESHOLD) ? true : false;
   lowerTilted = (tiltLowerBack > LOWER_BACK_MEDIAN_THRESHOLD) ? true : false;
 
-  //record the classification in the buffer
-  if (!upperTilted && !lowerTilted){    
-    tilt_buffer[tilt_index] = 0;
+  if (!upperTilted && !lowerTilted){
+    Sprintln(F("BACK: STRAIGHT"));    
+    return STRAIGHT;
   }
-  else if (upperTilted && !lowerTilted){    
-    tilt_buffer[tilt_index] = 1;        
+  else if (upperTilted && !lowerTilted){
+    Sprintln(F("BACK: PARTIALLY_BENT"));    
+    return PARTIALLY_BENT;
   }
-  else if (upperTilted && lowerTilted){    
-    tilt_buffer[tilt_index] = 2;
+  else if (upperTilted && lowerTilted){
+    Sprintln(F("BACK: FULLY_BENT"));    
+    return FULLY_BENT;
   }
-  else{    
-    tilt_buffer[tilt_index] = 3;
-  }
-
-  tilt_index = (tilt_index + 1) % TILT_BUFFER_SIZE; //update the buffer index
-
-  //handles the initial buffer load
-  if (tilt_start_index != TILT_BUFFER_SIZE){
-    tilt_start_index++;
-    tilt_value = tilt_buffer[tilt_start_index - 1];        
-    for (int i = tilt_start_index; i < TILT_BUFFER_SIZE; ++i){
-      tilt_buffer[i] = tilt_value;      
-    }    
-  }
-
-  //counts the occurrence of each classification currently in the buffer
-  for (int i = 0; i < TILT_BUFFER_SIZE; ++i){
-    switch(tilt_buffer[i]){
-      case 0:
-        tilt_count[0] = tilt_count[0] + 1;
-        break;
-      case 1:
-        tilt_count[1] = tilt_count[1] + 1;
-        break;
-      case 2:
-        tilt_count[2] = tilt_count[2] + 1;
-        break;
-      default:
-        tilt_count[3] = tilt_count[3] + 1;
-        break;
-    }
-  }
-
-  //determine which classification has the highest frequency
-  for (int i = 0; i < 4; ++i){
-    if (tilt_count[i] > tilt_max){
-      tilt_decision = i;
-    }
-  }
-
-  //reset variables for each call
-  for (int i = 0; i < 4; ++i){
-    tilt_count[i] = 0;
-  }
-  tilt_max = 0;
-
-  //return the most frequent classification
-  switch(tilt_decision){
-    case 0:
-      Sprintln(F("BACK: STRAIGHT"));  
-      return STRAIGHT;      
-    case 1:
-      Sprintln(F("BACK: PARTIALLY_BENT"));  
-      return PARTIALLY_BENT;
-    case 2:
-      Sprintln(F("BACK: FULLY_BENT"));  
-      return FULLY_BENT;      
-    default:
-      Sprintln(F("BACK: ERROR"));  
-      return UNKNOWN_TILT;
+  else{
+    Sprintln(F("BACK: ERROR"));    
+    return UNKNOWN_TILT;
   }
   
-}
-
-//call this to clear state whenever the lift attempt finishes or is interrupted
-void PostureDetector::clearBackTiltState(){
-  for (int i = 0; i < TILT_BUFFER_SIZE; ++i){
-    tilt_buffer[i] = 0;
-  }
-  
-  tilt_index = 0;
-  tilt_start_index = 0;  
 }
