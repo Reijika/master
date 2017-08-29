@@ -25,11 +25,19 @@ def normalize(dataframe):
 	#remove rows with missing data
 	for category in categories:
 		dataframe = dataframe[dataframe[category] != ' ?'] #drop any rows with missing data
-	
-	dataframe = onehot_encode(dataframe, categories)
-	
+
 	#label encode the classification column
 	dataframe = ordinal_encode(dataframe, classification)	
+
+	#extract the classification column temporarily
+	labels = dataframe['income-class']
+	dataframe = dataframe.drop('income-class', 1)
+
+	#one hot encode the categorical columns
+	dataframe = onehot_encode(dataframe, categories)	
+
+	#rejoin the labels
+	dataframe = dataframe.join(labels)	
 
 	return dataframe
 
