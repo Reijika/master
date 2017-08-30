@@ -2,7 +2,9 @@
 
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, LabelEncoder
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import MinMaxScaler, LabelEncoder
+from sklearn.decomposition import PCA
 
 pd.options.mode.chained_assignment = None
 
@@ -49,26 +51,44 @@ def ordinal_encode(dataframe, categories):
 
 def onehot_encode(dataframe, categories):	
 	return pd.get_dummies(dataframe, columns=categories)
-	# dataframe = pd.get_dummies(dataframe, columns=['workclass'])
 
+def apply_PCA(dataframe, dimensions):
+	pca = PCA(n_components=dimensions)
 
+	y_df = dataframe['income-class'].values
+	y_df = np.reshape(y_df, (y_df.size,1))
+	x_df = dataframe.drop('income-class', 1)
+	x_df = pca.fit_transform(x_df)
+	
+	numpy_data = np.column_stack((x_df,y_df))
 
-def show_max(data):
-	#checking number of categories after a label encoding
-	print str(data['workclass'].max()) 
-	print str(data['education'].max()) 
-	print str(data['marital-status'].max())
-	print str(data['occupation'].max()) 
-	print str(data['relationship'].max())
-	print str(data['race'].max()) 
-	print str(data['sex'].max()) 
-	print str(data['native-country'].max()) 
-	print str(data['income-class'].max()) 
+	return numpy_data
+
+def display_graph(nd):
+
+	c_zero = nd[nd[:,2] == 0]
+	c_one = nd[nd[:,2] == 1]
+	print c_zero
+	print c_one
+
+	with plt.style.context('seaborn-whitegrid'):
+
+		fig = plt.figure(figsize=(6,4))
+		ax1 = fig.add_subplot(111)
+		ax1.scatter(c_zero[:,0], c_zero[:,1], c='b', marker='.', label='<=50K')
+		ax1.scatter(c_one[:,0], c_one[:,1], c='r', marker='.', label='>50K')
+		plt.xlabel('Principal Component 1')
+    	plt.ylabel('Principal Component 2')
+    	plt.legend(loc='lower left')
+    	plt.tight_layout()
+    	plt.show()
 
 #label encoder starts at 0
 data = load_data('train_data.txt')
+numpy_data = apply_PCA(data, 2)
+display_graph(numpy_data)
 print data.head(5)
-# show_max(data)
+
 
 
 # https://stackoverflow.com/questions/21057621/sklearn-labelencoder-with-never-seen-before-values
