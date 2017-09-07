@@ -6,50 +6,33 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 from sklearn.decomposition import PCA
 
-pd.options.mode.chained_assignment = None
-
 def load_data(fileName):
 	columns = ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week', 'native-country', 'income-class']
 	data = pd.read_csv('data/'+fileName, sep=',')
-	data.columns = columns
-	data = normalize(data)
+	data.columns = columns	
 	return data
 
-def normalize(dataframe):
-	continuous = ['age', 'fnlwgt', 'education-num', 'capital-gain', 'capital-loss', 'hours-per-week']
-	categories = ['workclass', 'education', 'marital-status', 'occupation', 'relationship', 'race', 'sex', 'native-country']
-	classification = ['income-class']
-
+def normalize_continuous(dataframe, continuous):	
 	#normalize the continuous columns
 	scaler = MinMaxScaler()	
 	dataframe[continuous] = scaler.fit_transform(dataframe[continuous])
+	return dataframe
 
+def ordinal_encode(dataframe, categories):
 	#remove rows with missing data
 	for category in categories:
 		dataframe = dataframe[dataframe[category] != ' ?'] #drop any rows with missing data
 
-	#label encode the classification column
-	dataframe = ordinal_encode(dataframe, classification)	
-
-	#extract the classification column temporarily
-	labels = dataframe['income-class']
-	dataframe = dataframe.drop('income-class', 1)
-
-	#one hot encode the categorical columns
-	dataframe = onehot_encode(dataframe, categories)	
-
-	#rejoin the labels
-	dataframe = dataframe.join(labels)	
-
-	return dataframe
-
-def ordinal_encode(dataframe, categories):	
 	label_encoder = LabelEncoder()		
 	for category in categories:
 		dataframe[category] = label_encoder.fit_transform(dataframe[category])	#label encode
 	return dataframe
 
 def onehot_encode(dataframe, categories):	
+	#remove rows with missing data
+	for category in categories:
+		dataframe = dataframe[dataframe[category] != ' ?'] #drop any rows with missing data
+
 	return pd.get_dummies(dataframe, columns=categories)
 
 def apply_PCA(dataframe, dimensions):
@@ -65,14 +48,12 @@ def apply_PCA(dataframe, dimensions):
 	return numpy_data
 
 def display_graph(nd):
-
 	c_zero = nd[nd[:,2] == 0]
 	c_one = nd[nd[:,2] == 1]
 	print c_zero
 	print c_one
 
 	with plt.style.context('seaborn-whitegrid'):
-
 		fig = plt.figure(figsize=(6,4))
 		ax1 = fig.add_subplot(111)
 		ax1.scatter(c_zero[:,0], c_zero[:,1], c='b', marker='.', label='<=50K')
@@ -82,14 +63,6 @@ def display_graph(nd):
     	plt.legend(loc='lower left')
     	plt.tight_layout()
     	plt.show()
-
-#label encoder starts at 0
-data = load_data('train_data.txt')
-numpy_data = apply_PCA(data, 2)
-display_graph(numpy_data)
-print data.head(5)
-
-
 
 # https://stackoverflow.com/questions/21057621/sklearn-labelencoder-with-never-seen-before-values
 # https://machinelearningmastery.com/how-to-one-hot-encode-sequence-data-in-python/
