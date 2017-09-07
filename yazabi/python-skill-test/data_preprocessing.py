@@ -19,20 +19,12 @@ def normalize_continuous(dataframe, continuous):
 	return dataframe
 
 def ordinal_encode(dataframe, categories):
-	#remove rows with missing data
-	for category in categories:
-		dataframe = dataframe[dataframe[category] != ' ?'] #drop any rows with missing data
-
 	label_encoder = LabelEncoder()		
 	for category in categories:
 		dataframe[category] = label_encoder.fit_transform(dataframe[category])	#label encode
 	return dataframe
 
-def onehot_encode(dataframe, categories):	
-	#remove rows with missing data
-	for category in categories:
-		dataframe = dataframe[dataframe[category] != ' ?'] #drop any rows with missing data
-
+def onehot_encode(dataframe, categories):
 	return pd.get_dummies(dataframe, columns=categories)
 
 def apply_PCA(dataframe, dimensions):
