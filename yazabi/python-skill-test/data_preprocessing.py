@@ -3,7 +3,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import MinMaxScaler, LabelEncoder
+from sklearn.preprocessing import MinMaxScaler, StandardScaler, LabelEncoder
 from sklearn.decomposition import PCA
 
 def load_data(fileName):
@@ -12,10 +12,15 @@ def load_data(fileName):
 	data.columns = columns	
 	return data
 
-def normalize_continuous(dataframe, continuous):	
+def scale_continuous(dataframe, continuous):	
 	#normalize the continuous columns
 	scaler = MinMaxScaler()	
 	dataframe[continuous] = scaler.fit_transform(dataframe[continuous])
+	return dataframe
+
+def standardize_continuous(dataframe, continuous):
+	standardizer = StandardScaler()
+	dataframe[continuous] = standardizer.fit_transform(dataframe[continuous])
 	return dataframe
 
 def ordinal_encode(dataframe, categories):
