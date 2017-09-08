@@ -12,8 +12,7 @@ def load_data(fileName):
 	data.columns = columns	
 	return data
 
-def scale_continuous(dataframe, continuous):	
-	#normalize the continuous columns
+def scale_continuous(dataframe, continuous):
 	scaler = MinMaxScaler()	
 	dataframe[continuous] = scaler.fit_transform(dataframe[continuous])
 	return dataframe
@@ -44,7 +43,7 @@ def apply_PCA(dataframe, dimensions):
 
 	return numpy_data
 
-def display_graph(nd):
+def display_2d_graph(nd):
 	c_zero = nd[nd[:,2] == 0]
 	c_one = nd[nd[:,2] == 1]
 	print c_zero
